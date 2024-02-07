@@ -114,3 +114,52 @@ Example test_andb33: (andb3 true false true) = false.
 Proof. simpl. reflexivity. Qed.
 Example test_andb34: (andb3 true true false) = false.
 Proof. simpl. reflexivity. Qed.
+
+Check true.
+(* true : bool *)
+
+Check true : bool.
+(* true : bool : bool *)
+
+(* Check true : day. (* The term "true" has type "bool" while it is expected to have type "day". *) *)
+
+Inductive rgb : Type :=
+  | red
+  | green
+  | blue.
+
+Inductive color : Type :=
+  | black
+  | white
+  | primary(p : rgb).
+
+Check primary(blue) : color.
+(* primary blue : color : color *)
+
+Check primary red : color.
+(* primary red : color : color *)
+
+Definition monochrome (c : color) : bool :=
+  match c with
+  | black => true
+  | white => true
+  | primary _ => false
+  end.
+
+Example black_is_monochrome: monochrome black = true.
+Proof. simpl. reflexivity. Qed.
+
+Example red_is_not_monochrome: monochrome (primary red) = false.
+Proof. simpl. reflexivity. Qed.
+
+Definition isred (c : color) : bool :=
+  match c with
+  | primary red => true
+  | _ => false
+  end.
+
+Example red_is_isred: isred (primary red) = true.
+Proof. simpl. reflexivity. Qed.
+
+Example white_is_not_isred: isred white = false.
+Proof. trivial. Qed.
