@@ -163,3 +163,26 @@ Proof. simpl. reflexivity. Qed.
 
 Example white_is_not_isred: isred white = false.
 Proof. trivial. Qed.
+
+Module TuplePlayground.
+
+Inductive bit : Type :=
+  | B0
+  | B1.
+
+Inductive nybble : Type :=
+  | bits (b b b b : bit).
+
+Definition all_zero (nb : nybble) : bool :=
+  match nb with
+  | (bits B0 B0 B0 B0) => true
+  | _ => false
+  end.
+
+Compute all_zero (bits B0 B0 B0 B0).
+(* = true : bool *)
+
+Compute all_zero (bits B1 B0 B0 B0).
+(* = false : bool *)
+
+End TuplePlayground.
