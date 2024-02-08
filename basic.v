@@ -186,3 +186,80 @@ Compute all_zero (bits B1 B0 B0 B0).
 (* = false : bool *)
 
 End TuplePlayground.
+
+Module NatPlayground.
+
+Inductive nat : Type :=
+  | O
+  | S (n : nat).
+
+Inductive caveNat : Type :=
+  | dot
+  | tick (n : caveNat).
+
+Definition pred (n : nat) : nat :=
+  match n with
+  | O => O
+  | S(n') => n'
+  end.
+
+Compute pred (S O).
+(* = O : nat *)
+
+Compute pred (S (S O)).
+(* = S O : nat *)
+
+Check S (S (S O)).
+(* S (S (S O)) *)
+
+End NatPlayground.
+
+Check S (S (S O)).
+(* 3 : nat *)
+
+Definition minustwo (n : nat) : nat :=
+  match n with
+  | O => O
+  | S O => O
+  | S (S n') => n'
+  end.
+  
+Compute minustwo (S (S (S O))).
+(* = 1 : nat *)
+
+Compute minustwo O.
+(* = 0 : nat *)
+
+Compute minustwo (S O).
+(* = 0 : nat *)
+
+Fixpoint even (n : nat) : bool :=
+  match n with
+  | O => true
+  | S O => false
+  | S (S n') => even n'
+  end.
+
+Definition odd (n : nat) : bool :=
+  negb (even n).
+
+Example one_odd : odd 1 = true.
+Proof. reflexivity. Qed.
+
+Example two_even : even 2 = true.
+Proof. simpl. reflexivity. Qed.
+
+Example one_is_not_even : even 1 = false.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint factorial (n : nat) : nat :=
+  match n with
+  | O => 1
+  | S n' => mult n (factorial n')
+  end.
+
+Example test_factorial3 : (factorial 3) = 6.
+Proof. simpl. reflexivity. Qed.
+
+Example test_factorial4 : (factorial 4) = (mult 6 4).
+Proof. simpl. reflexivity. Qed.
