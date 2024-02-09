@@ -263,3 +263,20 @@ Proof. simpl. reflexivity. Qed.
 
 Example test_factorial4 : (factorial 4) = (mult 6 4).
 Proof. simpl. reflexivity. Qed.
+
+Theorem plus_0_n : forall n, 0 + n = n.
+Proof. simpl. reflexivity. Qed.
+
+Theorem plus_n_0 : forall n, n + 0 = n.
+Proof.
+  intros.
+  induction n.
+  - reflexivity.
+  - intros. symmetry in |- *. auto.
+Qed.
+
+Theorem plus_1_l : forall n, 1 + n = S n.
+Proof. simpl. reflexivity. Qed.
+
+Theorem mult_0_l : forall n, 0 * n = 0.
+Proof. intros. simpl. reflexivity. Qed.
