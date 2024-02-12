@@ -275,8 +275,24 @@ Proof.
   - intros. symmetry in |- *. auto.
 Qed.
 
+Theorem plus_n_0' : forall n, n + 0 = n.
+Proof.
+  intros.
+  induction n.
+  - reflexivity.
+  - intros. symmetry in |- *. apply plus_n_O.
+Qed.
+
 Theorem plus_1_l : forall n, 1 + n = S n.
 Proof. simpl. reflexivity. Qed.
 
 Theorem mult_0_l : forall n, 0 * n = 0.
 Proof. intros. simpl. reflexivity. Qed.
+
+Theorem mult_1_r : forall n, n * 1 = n.
+Proof.
+  intros.
+  induction n.
+  - simpl. reflexivity.
+  - simpl. apply f_equal_nat. assumption.
+Qed.
