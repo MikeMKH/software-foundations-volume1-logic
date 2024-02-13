@@ -296,3 +296,45 @@ Proof.
   - simpl. reflexivity.
   - simpl. apply f_equal_nat. assumption.
 Qed.
+
+Theorem plus_identical' :
+  forall n m : nat, n = m -> n + n = m + m.
+Proof.
+  intros.
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+Theorem plus_identical'' :
+  forall n m o : nat, n = m -> m = o -> n + m = m + o.
+Proof.
+  intros.
+  rewrite -> H.
+  rewrite -> H0.
+  reflexivity.
+Qed.
+
+Check mult_n_O.
+(* forall n : nat, 0 = n * 0 *)
+
+Check mult_n_Sm.
+(* forall n m : nat, n * m + n = n * S m *)
+
+Theorem mult_n_0_m_0 :
+  forall p q : nat, (p * 0) + (q * 0) = 0.
+Proof.
+  intros.
+  rewrite <- mult_n_O.
+  rewrite <- mult_n_O.
+  simpl.
+  reflexivity.
+Qed.
+
+Theorem mult_n_1 : forall p : nat, p * 1 = p.
+Proof.
+  intros.
+  rewrite <- mult_n_Sm.
+  rewrite <- mult_n_O.
+  simpl.
+  reflexivity.
+Qed.
