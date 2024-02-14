@@ -338,3 +338,68 @@ Proof.
   simpl.
   reflexivity.
 Qed.
+
+Fixpoint eqb (n m : nat) : bool :=
+  match n with
+  | O => match m with
+         | O => true
+         | S m' => false
+         end
+  | S n' => match m with
+            | O => false
+            | S m' => eqb n' m'
+            end
+  end.
+
+Notation "x =? y" := (eqb x y) (at level 70) : nat_scope.
+
+Theorem plus_1_neq_0:
+  forall n : nat, (n + 1) =? 0 = false.
+Proof.
+  intros n.
+  destruct n as [|n'] eqn:E.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
+
+Theorem negb_involutive:
+  forall b : bool, negb (negb b) = b.
+Proof.
+  intros b.
+  destruct b as [|b'] eqn:E.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
+
+Theorem andb_commutative:
+  forall b c : bool, andb b c = andb c b.
+Proof.
+  intros b c.
+  destruct b eqn:Eb.
+  - destruct c eqn:Ec.
+    + reflexivity.
+    + simpl. reflexivity.
+  - destruct c eqn:Ec'.
+    + simpl. reflexivity.
+    + reflexivity.
+Qed.
+
+Theorem andb_true_elim2:
+  forall b c : bool, andb b c = true -> c = true.
+Proof.
+  intros b c.
+  destruct b.
+  - simpl. intros H. apply H.
+  - simpl. intros H. destruct c.
+    + reflexivity.
+    + assumption.
+Qed.
+
+Theorem zero_nbeq_plus_1:
+  forall n : nat, 0 =? (n + 1) = false.
+Proof.
+  intros n.
+  destruct n as [| n'].
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
