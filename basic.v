@@ -403,3 +403,13 @@ Proof.
   - simpl. reflexivity.
   - simpl. reflexivity.
 Qed.
+
+Fixpoint plus' (n : nat) (m : nat) : nat :=
+  match n with
+  | O => m
+  | S n' => S (plus' n' m)
+  end.
+  
+Compute plus' 3 4.
+Compute plus' 0 5.
+Compute plus' 8 0.
