@@ -366,7 +366,7 @@ Theorem negb_involutive:
   forall b : bool, negb (negb b) = b.
 Proof.
   intros b.
-  destruct b as [|b'] eqn:E.
+  destruct b.
   - simpl. reflexivity.
   - simpl. reflexivity.
 Qed.
