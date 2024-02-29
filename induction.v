@@ -169,3 +169,16 @@ Proof.
       reflexivity.
     }
 Qed.
+
+Theorem plus_n_n_eq_mul_n_2 :
+  forall n : nat, n + n = 2 * n.
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - (* n = 0 *)
+    simpl. reflexivity.
+  - (* n = S n' *)
+    {
+      simpl. rewrite -> add_0_r.
+      reflexivity.
+    }
+Qed.
