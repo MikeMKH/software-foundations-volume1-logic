@@ -170,7 +170,7 @@ Proof.
     }
 Qed.
 
-Theorem plus_n_n_eq_mul_n_2 :
+Theorem plus_n_n_eq_mul_2n_l :
   forall n : nat, n + n = 2 * n.
 Proof.
   intros n. induction n as [|n' IHn'].
@@ -179,6 +179,64 @@ Proof.
   - (* n = S n' *)
     {
       simpl. rewrite -> add_0_r.
+      reflexivity.
+    }
+Qed.
+
+Theorem add_shuffle3 :
+  forall n m p : nat,
+  n + (m + p) = m + (n + p).
+Proof.
+  intros n m p. induction n as [|n' IHn'].
+  - (* n = 0 *) simpl; reflexivity.
+  - (* n = S n' *)
+    {
+      simpl; rewrite IHn'.
+      rewrite -> plus_n_Sm.
+      reflexivity.
+    }
+Qed.
+
+Lemma mul_n_O :
+  forall n : nat, n * O = O.
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - (* n = 1 *) simpl; reflexivity.
+  - (* n = S n' *)
+    {
+      simpl; rewrite -> IHn'.
+      reflexivity.
+    }
+Qed.
+
+Lemma mul_n_Sm :
+  forall n m : nat, n * S m = n + n * m.
+Proof.
+  intros n m. induction n as [|n' IHn'].
+  - (* n = 1 *) simpl; reflexivity.
+  - (* n = S n' *)
+    {
+      simpl; rewrite -> IHn'.
+      rewrite -> add_assoc, -> add_assoc.
+      assert (H : m + n' = n' + m). { rewrite -> add_comm. reflexivity. }
+      rewrite -> H.
+      reflexivity.
+    }
+Qed.
+
+Theorem mul_comm :
+  forall m n : nat, m * n = n * m.
+Proof.
+  intros m n. induction n as [|n' IHn'].
+  - (* n = 1 *)
+    {
+      simpl; rewrite -> mul_n_O.
+      reflexivity.
+    }
+  - (* n = S n' *)
+    {
+      simpl; rewrite -> mul_n_Sm.
+      rewrite <- IHn'.
       reflexivity.
     }
 Qed.
