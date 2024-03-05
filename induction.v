@@ -240,3 +240,24 @@ Proof.
       reflexivity.
     }
 Qed.
+
+Fixpoint leb (n m : nat) : bool :=
+  match n with
+  | O => true
+  | S n' =>
+      match m with
+      | O => false
+      | S m' => leb n' m'
+      end
+  end.
+
+Notation "x <=? y" := (leb x y) (at level 70) : nat_scope.
+
+Theorem plus_leb_compat_l :
+  forall n m p : nat,
+  n <=? m = true -> (p + n) <=? (p + m) = true.
+Proof.
+  intros n m p H. induction p as [|p' IHp'].
+  - (* p = 0 *) simpl; assumption.
+  - (* p = S p' *) simpl; assumption.
+Qed.
