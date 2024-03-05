@@ -261,3 +261,18 @@ Proof.
   - (* p = 0 *) simpl; assumption.
   - (* p = S p' *) simpl; assumption.
 Qed.
+
+Theorem one_x_one :
+  forall (x : nat), 1 + x + 1 = 2 + x.
+Proof.
+  intros x.
+  simpl; replace (x + 1) with (S x).
+  - simpl; reflexivity.
+  - induction x as [|x' IHx'].
+    + (* x = 0 *) simpl; reflexivity.
+    + (* x = S x' *)
+      {
+        simpl; rewrite <- IHx'.
+        reflexivity.
+      }
+Qed.
