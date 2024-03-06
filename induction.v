@@ -276,3 +276,60 @@ Proof.
         reflexivity.
       }
 Qed.
+
+Inductive bin : Type :=
+  | Z
+  | B0 (n : bin)
+  | B1 (n : bin)
+.
+
+Fixpoint incr (m:bin) : bin :=
+  match m with
+  | Z => B1 Z
+  | B0 m' => B1 m'
+  | B1 m' => B0 (incr m')
+  end.
+
+Fixpoint bin_to_nat (m:bin) : nat :=
+  match m with
+  | Z => O
+  | B0 m' => mult 2 (bin_to_nat m')
+  | B1 m' => S (mult 2 (bin_to_nat m'))
+  end.
+
+Theorem bin_to_nat_pres_incr :
+  forall b : bin,
+  bin_to_nat (incr b) = 1 + bin_to_nat b.
+Proof.
+  intros b. simpl. induction b as [|b0' IHb0'| b1' IHb1'].
+  - (* b = Z *) simpl; reflexivity.
+  - (* b = B0 b' *) simpl; reflexivity.
+  - (* b = B1 b' *)
+    {
+      simpl; rewrite -> IHb1'.
+      rewrite -> add_0_r. simpl.
+      replace (bin_to_nat b1' + 0) with (bin_to_nat b1').
+      + rewrite <- plus_n_Sm. reflexivity.
+      + rewrite -> add_0_r. reflexivity.
+    }
+Qed.
+
+Fixpoint nat_to_bin (n:nat) : bin :=
+  match n with
+  | O => Z
+  | S n' => incr (nat_to_bin n')
+  end.
+  
+Theorem nat_bin_nat :
+  forall n, bin_to_nat (nat_to_bin n) = n.
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - (* n = 0 *) simpl; reflexivity.
+  - (* n = S n' *)
+    {
+      simpl.
+      rewrite -> bin_to_nat_pres_incr.
+      rewrite -> IHn'.
+      simpl; reflexivity.
+    }
+Qed.
