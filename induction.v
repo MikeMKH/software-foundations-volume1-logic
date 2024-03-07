@@ -333,3 +333,53 @@ Proof.
       simpl; reflexivity.
     }
 Qed.
+
+Fixpoint double (n:nat) :=
+  match n with
+  | O => O
+  | S n' => S (S (double n'))
+  end.
+
+Lemma double_incr :
+  forall n : nat, double (S n) = S (S (double n)).
+Proof.
+  intros n.
+  simpl; reflexivity.
+Qed.
+
+Lemma double_plus : forall n : nat, double n = n + n .
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - (* n = 0 *) simpl; reflexivity.
+  - (* n = S n' *)
+    {
+      simpl; rewrite -> IHn'.
+      rewrite <- plus_n_Sm.
+      reflexivity.
+    }
+Qed.
+
+Definition double_bin (b:bin) : bin :=
+  match b with
+  | Z => Z
+  | B0 b' => B0 (B0 b')
+  | B1 b' => B0 (B1 b')
+  end.
+
+Example double_bin_zero : double_bin Z = Z.
+Proof. simpl; reflexivity. Qed.
+
+Example double_bin_one : double_bin (B1 Z) = B0 (B1 Z).
+Proof. simpl; reflexivity. Qed.
+
+Lemma double_incr_bin :
+  forall b, double_bin (incr b) = incr (incr (double_bin b)).
+Proof.
+  intros b. destruct b.
+  - (* b = Z *) simpl; reflexivity.
+  - (* b = B0 *) simpl; reflexivity.
+  - (* b = B1 *) simpl; reflexivity.
+Qed.
+
+Compute nat_to_bin (bin_to_nat (B0 (B0 Z))).
+(* = Z : bin *)
