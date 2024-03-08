@@ -383,3 +383,23 @@ Qed.
 
 Compute nat_to_bin (bin_to_nat (B0 (B0 Z))).
 (* = Z : bin *)
+
+Fixpoint normalize (b:bin) : bin :=
+  match b with
+  | Z => Z
+  | B0 b' =>
+    match normalize b' with
+    | Z => Z
+    | b' => B0 b'
+    end
+  | B1 b' => B1 (normalize b')
+  end.
+
+Compute normalize (B0 (B0 Z)).
+(* = Z : bin *)
+
+Compute normalize (B1 (B0 (B0 Z))).
+(* = B1 Z : bin *)
+
+Compute normalize (B0 (B1 (B1 (B0 (B0 Z))))).
+(* B0 (B1 (B1 Z)) : bin *)
