@@ -403,3 +403,35 @@ Compute normalize (B1 (B0 (B0 Z))).
 
 Compute normalize (B0 (B1 (B1 (B0 (B0 Z))))).
 (* B0 (B1 (B1 Z)) : bin *)
+
+Lemma nat_twice :
+  forall n : nat, nat_to_bin (n + n) = normalize (double_bin (nat_to_bin n)).
+Proof.
+  Admitted.
+
+Theorem normalize_idempotent :
+  forall b, normalize b = normalize (normalize b).
+Proof.
+  Admitted.
+  
+Lemma normalize_double_normalize :
+  forall b, normalize (double_bin (normalize b)) = double_bin (normalize b).
+Proof.
+  Admitted.
+
+Theorem bin_nat_bin :
+  forall b, nat_to_bin (bin_to_nat b) = normalize b.
+Proof.
+  intros b. induction b as [|b' IHb'|b'' IHb''].
+  - (* b = Z *) simpl; reflexivity.
+  - (* b = B0 *)
+    {
+      simpl.
+      rewrite -> add_0_r.
+      rewrite -> nat_twice.
+      rewrite -> IHb'.
+      rewrite -> normalize_double_normalize.
+      reflexivity.
+    }
+  - (* b = B1 *)
+      Admitted.
