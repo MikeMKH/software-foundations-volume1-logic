@@ -446,7 +446,6 @@ Proof.
   - assumption.
 Qed.
 
-
 Fixpoint leb (n m : nat) : bool :=
   match n with
   | O => true
