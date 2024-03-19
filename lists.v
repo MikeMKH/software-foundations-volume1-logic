@@ -338,3 +338,279 @@ Proof.
       * simpl; rewrite -> eqb_refl. reflexivity.
       * simpl; rewrite -> eqb_refl. reflexivity.
 Qed.
+
+Theorem nil_app :
+  forall l : natlist,
+  [] ++ l = l.
+Proof. reflexivity. Qed.
+
+Theorem tl_length_pred :
+  forall l : natlist,
+  pred (length l) = length (tl l).
+Proof.
+  intros l. destruct l as [| n l'].
+  - (* l = [] *)
+    reflexivity.
+  - (* l = cons n l' *)
+    reflexivity.
+Qed.
+
+Theorem app_assoc :
+  forall l1 l2 l3 : natlist,
+  (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
+Proof.
+  intros l1 l2 l3. induction l1 as [| n l1' IHl1'].
+  - (* l1 = [] *)
+    reflexivity.
+  - (* l1 = cons n l1' *)
+    simpl. rewrite -> IHl1'. reflexivity.
+Qed.
+
+Fixpoint rev (l:natlist) : natlist :=
+  match l with
+  | [] => nil
+  | h :: t => rev t ++ [h]
+  end.
+
+Example test_rev1: rev [1;2;3] = [3;2;1].
+Proof. reflexivity. Qed.
+
+Example test_rev2: rev [] = [].
+Proof. reflexivity. Qed.
+
+Theorem app_length :
+  forall l1 l2 : natlist,
+  length (l1 ++ l2) = (length l1) + (length l2).
+Proof.
+  intros l1 l2. induction l1 as [| n l1' IHl1'].
+  - (* l1 = [] *)
+    reflexivity.
+  - (* l1 = cons *)
+    simpl. rewrite -> IHl1'. reflexivity.
+Qed.
+
+Theorem add_0_r :
+  forall n : nat, n + 0 = n.
+Proof.
+  intros n.
+  induction n as [|n' IHn'].
+  - (* n = 0 *) reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.
+Qed.
+
+Theorem add_comm :
+  forall n m : nat, n + m = m + n.
+Proof.
+  intros n m. induction m as [|m' IHm'].
+  - (* m = 0 *)
+    {
+      simpl; rewrite -> add_0_r.
+      reflexivity.
+    }
+  - (* m = S m' *)
+    {
+      simpl; rewrite <- IHm'.
+      rewrite <- plus_n_Sm.
+      reflexivity.
+    }
+Qed.
+
+Theorem rev_length :
+  forall l : natlist,
+  length (rev l) = length l.
+Proof.
+  intros l. induction l as [| n l' IHl'].
+  - (* l = [] *)
+    reflexivity.
+  - (* l = cons *)
+    {
+      simpl. rewrite -> app_length.
+      simpl. rewrite -> IHl'.
+      rewrite add_comm.
+      reflexivity.
+    }
+Qed.
+
+Search rev.
+Search (?x + ?y = ?y + ?x).
+
+Theorem app_nil_r :
+  forall l : natlist,
+  l ++ [] = l.
+Proof.
+  intros l. induction l as [|n' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = n' l' IHl' *)
+    {
+      simpl; rewrite -> IHl'.
+      reflexivity.
+    }
+Qed.
+
+Theorem rev_app_distr:
+  forall l1 l2 : natlist,
+  rev (l1 ++ l2) = rev l2 ++ rev l1.
+Proof.
+  intros l1 l2. induction l1 as [|n1' l1' IHl1'].
+  - (* l1 = [] *)
+    {
+      simpl; rewrite -> app_nil_r.
+      reflexivity.
+    }
+  - (* l1 = n1' l1' IHl1' *)
+    {
+      simpl; rewrite -> IHl1'.
+      rewrite -> app_assoc.
+      reflexivity.
+    }
+Qed.
+
+Theorem rev_involutive :
+  forall l : natlist,
+  rev (rev l) = l.
+Proof.
+  intros l. induction l as [|n' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = n' l' IHl' *)
+    {
+      simpl; rewrite -> rev_app_distr.
+      simpl; rewrite -> IHl'.
+      reflexivity.
+    }
+Qed.
+
+Theorem app_assoc4 :
+  forall l1 l2 l3 l4 : natlist,
+  l1 ++ (l2 ++ (l3 ++ l4)) = ((l1 ++ l2) ++ l3) ++ l4.
+Proof.
+  intros l1 l2 l3 l4.
+  rewrite -> app_assoc.
+  rewrite -> app_assoc.
+  reflexivity.
+Qed.
+
+Lemma nonzeros_app :
+  forall l1 l2 : natlist,
+  nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2).
+Proof.
+  intros l1 l2. induction l1 as [|n1' l1' IHl1'].
+  - (* l1 = [] *) simpl; reflexivity.
+  - (* l1 = n1 l1 IHl1 *)
+    {
+      simpl; rewrite -> IHl1'. destruct n1'.
+      + reflexivity.
+      + simpl; reflexivity.
+    }
+Qed.
+
+Fixpoint eqblist (l1 l2 : natlist) : bool :=
+  match l1, l2 with
+  | [], [] => true
+  | [], _ :: l2' => false
+  | _ :: l1', [] => false
+  | x :: l1', y :: l2' =>
+    if (eqb x y)
+      then (eqblist l1' l2')
+      else false
+  end.
+
+Example test_eqblist1 :
+  (eqblist nil nil = true).
+Proof. simpl; reflexivity. Qed.
+
+Example test_eqblist2 :
+  eqblist [1;2;3] [1;2;3] = true.
+Proof. simpl; reflexivity. Qed.
+
+Example test_eqblist3 :
+  eqblist [1;2;3] [1;2;4] = false.
+Proof. simpl; reflexivity. Qed.
+
+Theorem eqblist_refl :
+  forall l:natlist,
+  true = eqblist l l.
+Proof.
+  intros l. induction l as [|n' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = n' l' *)
+    {
+      simpl.
+      rewrite -> eqb_refl.
+      assumption. (* IHl' *)
+    }
+Qed.
+
+Fixpoint leb (n m : nat) : bool :=
+  match n with
+  | O => true
+  | S n' =>
+      match m with
+      | O => false
+      | S m' => leb n' m'
+      end
+  end.
+
+Notation "x <=? y" := (leb x y) (at level 70) : nat_scope.
+
+Theorem count_member_nonzero :
+  forall (s : bag),
+  1 <=? (count 1 (1 :: s)) = true.
+Proof.
+  intros s. induction s as [|n' s' IHs'].
+  - (* s = [] *) simpl; reflexivity.
+  - (* s = n' s' *) simpl; reflexivity.
+Qed.
+
+Theorem leb_n_Sn :
+  forall n,
+  n <=? (S n) = true.
+Proof.
+  intros n. induction n as [| n' IHn'].
+  - (* 0 *)
+    simpl. reflexivity.
+  - (* S n' *)
+    simpl. rewrite IHn'. reflexivity.
+Qed.
+    
+Theorem remove_does_not_increase_count:
+  forall (s : bag),
+  (count 0 (remove_one 0 s)) <=? (count 0 s) = true.
+Proof.
+  intros s. induction s as [|n' s' IHs'].
+  - (* s = [] *) simpl; reflexivity.
+  - (* s = n' s' *)
+    {
+      induction n' as [|n'' IHn''].
+      + (* n' = 0 *)
+        {
+          simpl; rewrite -> leb_n_Sn.
+          reflexivity.
+        }
+      + (* n' = n'' IHn'' *)
+        {
+          simpl. rewrite -> IHs'.
+          reflexivity.
+        }
+    }
+Qed.
+
+Theorem involution_injective :
+  forall (f : nat -> nat),
+  (forall n : nat, n = f (f n)) -> (forall n1 n2 : nat, f n1 = f n2 -> n1 = n2).
+Proof.
+  intros f H n1 n2 H1.
+  rewrite -> H, <- H1.
+  rewrite <- H.
+  reflexivity.
+Qed.
+
+Theorem rev_injective :
+  forall (l1 l2 : natlist),
+  rev l1 = rev l2 -> l1 = l2.
+Proof.
+  intros l1 l2 H.
+  rewrite <- rev_involutive.
+  rewrite <- H.
+  rewrite -> rev_involutive.
+  reflexivity.
+Qed.
