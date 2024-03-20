@@ -614,3 +614,51 @@ Proof.
   rewrite -> rev_involutive.
   reflexivity.
 Qed.
+
+Inductive natoption : Type :=
+  | Some (n : nat)
+  | None.
+
+Fixpoint nth_error (l:natlist) (n:nat) : natoption :=
+  match l with
+  | nil => None
+  | a :: l' =>
+    match n with
+      | O => Some a
+      | S n' => nth_error l' n'
+    end
+  end.
+
+Example test_nth_error1 : nth_error [4;5;6;7] 0 = Some 4.
+Proof. simpl; reflexivity. Qed.
+Example test_nth_error2 : nth_error [4;5;6;7] 3 = Some 7.
+Proof. simpl; reflexivity. Qed.
+Example test_nth_error3 : nth_error [4;5;6;7] 9 = None.
+Proof. simpl; reflexivity. Qed.
+
+Definition option_elim (d : nat) (o : natoption) : nat :=
+  match o with
+  | Some n' => n'
+  | None => d
+  end.
+
+Definition hd_error (l : natlist) : natoption :=
+  nth_error l 0.
+
+Example test_hd_error1 : hd_error [] = None.
+Proof. simpl; reflexivity. Qed.
+Example test_hd_error2 : hd_error [1] = Some 1.
+Proof. simpl; reflexivity. Qed.
+Example test_hd_error3 : hd_error [5;6] = Some 5.
+Proof. simpl; reflexivity. Qed.
+
+Theorem option_elim_hd :
+  forall (l:natlist) (default:nat),
+  hd default l = option_elim default (hd_error l).
+Proof.
+  intros l default. induction l as [|n' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = n' l' *) simpl; reflexivity.
+Qed.
+
+End NatList.
