@@ -661,4 +661,80 @@ Proof.
   - (* l = n' l' *) simpl; reflexivity.
 Qed.
 
+Inductive id : Type :=
+  | Id (n : nat).
+
+Definition eqb_id (x1 x2 : id) :=
+  match x1, x2 with
+  | Id n1, Id n2 => n1 =? n2
+  end.
+
+Theorem eqb_id_refl :
+  forall x, eqb_id x x = true.
+Proof.
+  intros x. destruct x.
+  simpl; rewrite -> eqb_refl.
+  reflexivity.
+Qed.
+
+Fixpoint beq_nat n m {struct n} : bool :=
+  match n, m with
+    | O, O => true
+    | O, S _ => false
+    | S _, O => false
+    | S n1, S m1 => beq_nat n1 m1
+  end.
+
+Lemma beq_nat_refl :
+  forall n, true = beq_nat n n.
+Proof.
+  intro x; induction x; simpl in |- *; auto.
+Qed.
+
+Definition beq_nat_eq : forall x y, true = beq_nat x y -> x = y.
+Proof.
+  induction x; induction y; simpl in |- *.
+    reflexivity.
+    intros. discriminate H.
+    intros. discriminate H.
+    intros. case (IHx _ H). reflexivity.
+Defined.
+
+Theorem eqb_id_equiv :
+  forall n : nat,
+  eqb_id (Id n) (Id n) = beq_nat n n.
+Proof. intros n. simpl. reflexivity. Qed.
+
+Inductive partial_map : Type :=
+  | empty
+  | record (i : id) (v : nat) (m : partial_map).
+
+Definition update
+  (d : partial_map) (x : id) (value : nat) : partial_map :=
+  record x value d.
+
+Fixpoint find (x : id) (d : partial_map) : natoption :=
+  match d with
+  | empty => None
+  | record y v d' =>
+    if eqb_id x y
+      then Some v
+      else find x d'
+  end.
+
+Theorem update_eq :
+  forall (d : partial_map) (x : id) (v: nat),
+  find x (update d x v) = Some v.
+Proof.
+Admitted.
+
+Theorem update_neq :
+  forall (d : partial_map) (x y : id) (o: nat),
+  eqb_id x y = false -> find x (update d y o) = find x d.
+Proof.
+  intros d x y o H. induction d.
+  - (* d = empty *) simpl. rewrite -> H. reflexivity.
+  - (* d = record i v d' *) simpl. rewrite -> H. reflexivity.
+Qed.
+
 End NatList.
