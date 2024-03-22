@@ -39,3 +39,15 @@ Check e mumble (b c 0). (* : grumble mumble *)
 (* Check e bool (b c 0). The term "b c 0" has type "mumble" while it is expected to have type "bool". *)
 Check c. (* : mumble *)
 End MumbleGrumble.
+
+(* interface *)
+Fixpoint repeat' X x count : list X :=
+  match count with
+  | 0 => nil X
+  | S count' => cons X x (repeat' X x count')
+  end.
+
+Check repeat'
+  : forall X : Type, X -> nat -> list X.
+Check repeat
+  : forall X : Type, X -> nat -> list X.
