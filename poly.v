@@ -183,3 +183,44 @@ Proof.
       simpl; reflexivity.
     }
 Qed.
+
+Inductive prod (X Y : Type) : Type :=
+| pair (x : X) (y : Y).
+
+Arguments pair {X} {Y}.
+
+Notation "( x , y )" := (pair x y).
+Notation "X * Y" := (prod X Y) : type_scope.
+
+Definition fst {X Y : Type} (p : X * Y) : X :=
+  match p with
+  | (x, y) => x
+  end.
+
+Definition snd {X Y : Type} (p : X * Y) : Y :=
+  match p with
+  | (x, y) => y
+  end.
+
+Fixpoint combine {X Y : Type} (lx : list X) (ly : list Y) : list (X * Y) :=
+  match lx, ly with
+  | [], _ => []
+  | _, [] => []
+  | x :: tx, y :: ty => (x, y) :: (combine tx ty)
+  end.
+
+Check @combine.
+(* : forall X Y : Type, list X -> list Y -> list (X * Y) *)
+
+Compute (combine [1;2] [false;false;true;true]).
+(* [(1, false); (2, false)] : list (nat * bool) *)
+
+Fixpoint split {X Y : Type} (l : list (X * Y)) : (list X) * (list Y) :=
+  match l with
+  | [] => ([], [])
+  | (x, y) :: t => (x :: (fst (split t)), y :: (snd (split t)))
+  end.
+
+Example test_split:
+  split [(1,false);(2,false)] = ([1;2],[false;false]).
+Proof. simpl; reflexivity. Qed.
