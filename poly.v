@@ -360,3 +360,62 @@ Example test_partition1: partition odd [1;2;3;4;5] = ([1;3;5], [2;4]).
 Proof. simpl; reflexivity. Qed.
 Example test_partition2: partition (fun x => false) [5;9;0] = ([], [5;9;0]).
 Proof. simpl; reflexivity. Qed.
+
+Fixpoint map {X Y : Type} (f : X -> Y) (l : list X) : list Y :=
+  match l with
+  | [] => []
+  | h :: t => (f h) :: (map f t)
+  end.
+
+Example test_map1: map (fun x => plus 3 x) [2;0;2] = [5;3;5].
+Proof. simpl; reflexivity. Qed.
+Example test_map2:
+  map odd [2;1;2;5] = [false;true;false;true].
+Proof. simpl; reflexivity. Qed.
+Example test_map3: map (fun n => [even n;odd n]) [2;1;2;5]
+  = [[true;false];[false;true];[true;false];[false;true]].
+Proof. simpl; reflexivity. Qed.
+
+Theorem map_app_distr :
+  forall (X Y : Type) (f : X -> Y) (l1 l2 : list X),
+  map f (l1 ++ l2) = map f l1 ++ map f l2.                       
+Proof.
+  intros X Y f l1 l2. induction l1 as [|x' l1' IHl1'].
+  - (* l1 = [] *) simpl; reflexivity.
+  - (* l1 = x' :: l1' *)
+    {
+      simpl; rewrite -> IHl1'.
+      reflexivity.
+    }
+Qed.
+
+Theorem map_rev :
+  forall (X Y : Type) (f : X -> Y) (l : list X),
+  map f (rev l) = rev (map f l).
+Proof.
+  intros X Y f l. induction l as [|x' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = x' :: l' *)
+    {
+      simpl; rewrite -> map_app_distr.
+      simpl; rewrite -> IHl'.
+      reflexivity.
+    }
+Qed.
+
+Fixpoint flat_map {X Y: Type} (f: X -> list Y) (l: list X) : list Y :=
+  match l with
+  | [] => []
+  | h :: t => (f h) ++ (flat_map f t)
+  end.
+
+Example test_flat_map1:
+  flat_map (fun n => [n;n;n]) [1;5;4]
+  = [1; 1; 1; 5; 5; 5; 4; 4; 4].
+Proof. simpl; reflexivity. Qed.
+
+Definition option_map {X Y : Type} (f : X -> Y) (xo : option X) : option Y :=
+  match xo with
+  | None => None
+  | Some x => Some (f x)
+  end.
