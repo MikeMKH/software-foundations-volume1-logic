@@ -419,3 +419,38 @@ Definition option_map {X Y : Type} (f : X -> Y) (xo : option X) : option Y :=
   | None => None
   | Some x => Some (f x)
   end.
+
+Fixpoint fold {X Y: Type} (f : X -> Y -> Y) (l : list X) (b : Y) : Y :=
+  match l with
+  | nil => b
+  | h :: t => f h (fold f t b)
+  end.
+
+Check (fold andb) : list bool -> bool -> bool.
+
+Example fold_example1 :
+  fold andb [true;true;false;true] true = false.
+Proof. simpl; reflexivity. Qed.
+Example fold_example2 :
+  fold mult [1;2;3;4] 1 = 24.
+Proof. simpl; reflexivity. Qed.
+Example fold_example3 :
+  fold app [[1];[];[2;3];[4]] [] = [1;2;3;4].
+Proof. simpl; reflexivity. Qed.
+Example fold_example4 :
+  fold (fun x m => x - m) [9;8;2;1] 0 = 2.
+  (* 9-(8-(2-(1-0))) *)
+Proof. simpl; reflexivity. Qed.
+
+Definition count {X : Type} (l : list X) : nat :=
+  fold (fun _ n => S n) l 0.
+
+Example count_example1 :
+  count [1;2;3;4;5] = 5.
+Proof. simpl; reflexivity. Qed.
+Example count_example2 :
+  count [true;false;false] = 3.
+Proof. simpl; reflexivity. Qed.
+Example count_example3 :
+  count ([] : list nat) = 0.
+Proof. simpl; reflexivity. Qed.
