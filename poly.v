@@ -500,3 +500,36 @@ Proof.
       reflexivity.
     }
 Qed.
+
+Definition fold_map {X Y: Type} (f: X -> Y) (l: list X) : list Y :=
+  fold (fun x m => (f x) :: m) l [].
+
+Lemma fold_map_distr :
+  forall (X Y : Type) (f : X -> Y) (l1 l2 : list X),
+  fold_map f (l1 ++ l2) = fold_map f l1 ++ fold_map f l2.
+Proof.
+  intros X Y f l1 l2. induction l1 as [|x1' l1' IHl1'].
+    + (* l1 = [] *) simpl; reflexivity.
+    + (* l1 = x1' :: l1' *)
+      {
+        unfold fold_map in *.
+        simpl; rewrite -> IHl1'.
+        reflexivity.
+      }
+Qed.
+
+Theorem fold_map_correct :
+  forall (X Y : Type) (f : X -> Y) (l : list X),
+  fold_map f l = map f l.
+Proof.
+  intros X Y f l. induction l as [|x' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = x' :: l' *)
+    {
+      rewrite -> cons_app_equiv.
+      rewrite -> fold_map_distr.
+      simpl; rewrite -> IHl'.
+      reflexivity.
+    }
+Qed.
+      
