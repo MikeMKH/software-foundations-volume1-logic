@@ -454,3 +454,49 @@ Proof. simpl; reflexivity. Qed.
 Example count_example3 :
   count ([] : list nat) = 0.
 Proof. simpl; reflexivity. Qed.
+
+Module Exercises.
+
+Definition fold_length {X : Type} (l : list X) : nat :=
+  fold (fun _ n => S n) l 0. (* funny this is exactly what I did for count *)
+  
+Example test_fold_length1 : fold_length [4;7;0] = 3.
+Proof. simpl; reflexivity. Qed.
+
+Theorem cons_app_equiv :
+  forall (X : Type) (l : list X) (x : X),
+  x::l = [x] ++ l.
+Proof.                           
+  intros X l x. induction l as [|x' l' IHl'].
+    + (* l = [] *) simpl; reflexivity.
+    + (* l = x' :: l' *) simpl; reflexivity.
+Qed.
+
+Lemma fold_length_distr :
+  forall (X : Type) (l1 l2 : list X),
+  fold_length (l1 ++ l2) = fold_length l1 + fold_length l2.
+Proof.
+  intros X l1 l2. induction l1 as [|x1' l1' IHl1'].
+    + (* l1 = [] *) simpl; reflexivity.
+    + (* l1 = x1' :: l1' *)
+      {
+        unfold fold_length in *.
+        simpl; rewrite -> IHl1'.
+        reflexivity.
+      }
+Qed.
+
+Theorem fold_length_correct :
+  forall X (l : list X),
+  fold_length l = length l.
+Proof.
+  intros X l. induction l as [|x' l' IHl'].
+  - (* l = [] *) reflexivity.
+  - (* l = x' :: l' *)
+    {
+      rewrite -> cons_app_equiv.
+      rewrite -> fold_length_distr.
+      simpl; rewrite -> IHl'.
+      reflexivity.
+    }
+Qed.
