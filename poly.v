@@ -533,3 +533,37 @@ Proof.
     }
 Qed.
       
+Definition prod_curry {X Y Z : Type}
+  (f : X * Y -> Z) (x : X) (y : Y) : Z := f (x, y).
+  
+Definition prod_uncurry {X Y Z : Type}
+  (f : X -> Y -> Z) (p : X * Y) : Z :=
+  match p with
+  | (x, y) => f x y
+  end.
+
+Example test_map1': map (plus 3) [2;0;2] = [5;3;5].
+Proof. simpl; reflexivity. Qed.
+
+Check @prod_curry.
+(* (X * Y -> Z) -> X -> Y -> Z *)
+Check @prod_uncurry.
+(* (X -> Y -> Z) -> X * Y -> Z *)
+
+Theorem uncurry_curry :
+  forall (X Y Z : Type) (f : X -> Y -> Z) x y,
+  prod_curry (prod_uncurry f) x y = f x y.
+Proof.
+  intros X Y Z f x y.
+  unfold prod_curry.
+  simpl; reflexivity.
+Qed.
+
+Theorem curry_uncurry :
+  forall (X Y Z : Type) (f : (X * Y) -> Z) (p : X * Y),
+  prod_uncurry (prod_curry f) p = f p.
+Proof.
+  intros X Y Z f p. destruct p as [x y].
+  unfold prod_curry.
+  simpl; reflexivity.
+Qed.
