@@ -567,3 +567,91 @@ Proof.
   unfold prod_curry.
   simpl; reflexivity.
 Qed.
+
+Module Church.
+Definition cnat := forall X : Type, (X -> X) -> X -> X.
+
+Definition zero : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => x.
+Definition one : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => f x.
+Definition two : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => f (f x).
+
+(* More generally, a number n can be written as fun X f x ⇒ f (f ... (f x) ...), with n occurrences of f. *)
+
+Definition three : cnat := @doit3times.
+
+Definition zero' : cnat :=
+  fun (X : Type) (succ : X -> X) (zero : X) => zero.
+Definition one' : cnat :=
+  fun (X : Type) (succ : X -> X) (zero : X) => succ zero.
+Definition two' : cnat :=
+  fun (X : Type) (succ : X -> X) (zero : X) => succ (succ zero).
+  
+Example zero_church_peano : zero nat S O = 0.
+Proof. reflexivity. Qed.
+Example one_church_peano : one nat S O = 1.
+Proof. reflexivity. Qed.
+Example two_church_peano : two nat S O = 2.
+Proof. reflexivity. Qed.
+
+Definition scc (n : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X)
+    => f (n X f x).
+
+Example scc_1 : scc zero = one.
+Proof. reflexivity. Qed.
+Example scc_2 : scc one = two.
+Proof. reflexivity. Qed.
+Example scc_3 : scc two = three.
+Proof. reflexivity. Qed.
+
+Definition plus (n m : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X)
+    => n X f (m X f x).
+
+Example plus_1 : plus zero one = one.
+Proof. reflexivity. Qed.
+Example plus_2 : plus two three = plus three two.
+Proof. reflexivity. Qed.
+Example plus_3 :
+  plus (plus two two) three = plus one (plus three three).
+Proof. reflexivity. Qed.
+
+Definition scc' (n : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X)
+    => one X f (n X f x).
+
+Lemma scc_eq_scc' :
+  forall (n : cnat), scc n = scc' n.
+Proof.
+  intros n.
+  unfold scc, scc'. unfold one.
+  reflexivity.
+Qed.
+
+Definition mult (n m : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X)
+    => m X (n X f) x.
+  
+Example mult_1 : mult one one = one.
+Proof. reflexivity. Qed.
+Example mult_2 : mult zero (plus three three) = zero.
+Proof. reflexivity. Qed.
+Example mult_3 : mult two three = plus three three.
+Proof. reflexivity. Qed.
+
+Definition exp (n m : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X)
+    => (m (X -> X) (n X)) f x.
+
+Example exp_1 : exp two two = plus two two.
+Proof. reflexivity. Qed.
+Example exp_2 : exp three zero = one.
+Proof. reflexivity. Qed.
+Example exp_3 : exp three two = plus (mult two (mult two two)) one.
+Proof. reflexivity. Qed.
+
+End Church.
+End Exercises.
