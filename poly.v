@@ -619,6 +619,13 @@ Example plus_3 :
   plus (plus two two) three = plus one (plus three three).
 Proof. reflexivity. Qed.
 
+Lemma plus_one_zero_eq_scc_zero :
+  plus one zero = scc zero.
+Proof.
+  unfold scc, plus, one.
+  reflexivity.
+Qed.
+
 Definition scc' (n : cnat) : cnat :=
   fun (X : Type) (f : X -> X) (x : X)
     => one X f (n X f x).
