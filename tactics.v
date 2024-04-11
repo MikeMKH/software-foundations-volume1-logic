@@ -50,3 +50,49 @@ Proof.
   symmetry.
   apply H.
 Qed.
+
+Example trans_eq_example :
+  forall (a b c d e f : nat),
+  [a;b] = [c;d] ->
+  [c;d] = [e;f] ->
+  [a;b] = [e;f].
+Proof.
+  intros a b c d e f eq1 eq2.
+  transitivity [c;d].
+  - (* [a; b] = [c; d] *) apply eq1.
+  - (* [c; d] = [e; f] *) apply eq2.
+Qed.
+
+Definition minustwo (n : nat) : nat :=
+  match n with
+  | O => O
+  | S O => O
+  | S (S n') => n'
+  end.
+
+Example trans_eq_exercise :
+  forall (n m o p : nat),
+  m = (minustwo o) ->
+  (n + p) = m ->
+  (n + p) = (minustwo o).
+Proof.
+  intros n m o p eq1 eq2.
+  transitivity (n + p).
+  - (* n + p = n + p *) reflexivity.
+  - (* n + p = minustwo o *)
+    {
+      rewrite -> eq2.
+      apply eq1.
+    }
+Qed.
+
+Example trans_eq_exercise' :
+  forall (n m o p : nat),
+  m = (minustwo o) ->
+  (n + p) = m ->
+  (n + p) = (minustwo o).
+Proof.
+  intros n m o p eq1 eq2.
+  rewrite <- eq1.
+  apply eq2.
+Qed.
