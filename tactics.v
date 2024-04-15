@@ -202,3 +202,32 @@ Proof.
       discriminate contra.
     }
 Qed.
+
+Theorem f_equal' :
+  forall (A B : Type) (f: A -> B) (x y: A),
+  x = y -> f x = f y.
+Proof.
+  intros A B f x y eq.
+  rewrite <- eq.
+  reflexivity.
+Qed.
+
+Theorem eq_implies_succ_equal :
+  forall (n m : nat),
+  n = m -> S n = S m.
+Proof.
+  intros n m eq.
+  apply f_equal'.
+  rewrite <- eq.
+  reflexivity.
+Qed.
+
+Theorem eq_implies_succ_equal' :
+  forall (n m : nat),
+  n = m -> S n = S m.
+Proof.
+  intros n m eq.
+  f_equal.
+  rewrite <- eq.
+  reflexivity.
+Qed.
