@@ -140,3 +140,65 @@ Proof.
   rewrite -> H3.
   apply Hzy.
 Qed.
+
+Theorem discriminate_ex1 :
+  forall (n m : nat),
+  false = true -> n = m.
+Proof.
+  intros n m contra.
+  discriminate contra.
+Qed.
+
+Theorem discriminate_ex2 :
+  forall (n : nat),
+  S n = O -> 2 + 2 = 5.
+Proof.
+  intros n contra.
+  discriminate contra.
+Qed.
+
+Example discriminate_ex3 :
+  forall (X : Type) (x y z : X) (l j : list X),
+  x :: y :: l = [] -> x = z.
+Proof.
+  intros X x y z l j contra.
+  discriminate contra.
+Qed.
+
+Fixpoint eqb (n m : nat) : bool :=
+  match n with
+  | O => match m with
+         | O => true
+         | S m' => false
+         end
+  | S n' => match m with
+            | O => false
+            | S m' => eqb n' m'
+            end
+  end.
+  
+Fixpoint leb (n m : nat) : bool :=
+  match n with
+  | O => true
+  | S n' =>
+      match m with
+      | O => false
+      | S m' => leb n' m'
+      end
+  end.
+
+Notation "x =? y" := (eqb x y) (at level 70) : nat_scope.
+Notation "x <=? y" := (leb x y) (at level 70) : nat_scope.
+
+Theorem eqb_0_l :
+  forall n, 0 =? n = true -> n = 0.
+Proof.
+  intros n.
+  destruct n as [| n'] eqn:E.
+  - (* n = 0 *) intros H. reflexivity.
+  - (* n = S n' *)
+    {
+      simpl; intros contra.
+      discriminate contra.
+    }
+Qed.
