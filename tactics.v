@@ -251,3 +251,64 @@ Proof.
   symmetry in H2.
   apply H2.
 Qed.
+
+Inductive prod (X Y : Type) : Type :=
+| pair (x : X) (y : Y).
+
+Arguments pair {X} {Y}.
+
+Notation "( x , y )" := (pair x y).
+Notation "X * Y" := (prod X Y) : type_scope.
+
+Theorem add_0_r : forall n : nat, n + 0 = n.
+Proof.
+  intros n.
+  induction n as [|n' IHn'].
+  - (* n = 0 *) reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.
+Qed.
+
+Theorem add_comm :
+  forall n m : nat, n + m = m + n.
+Proof.
+  intros n m.
+  induction n as [|n' IHn'].
+  - (* n = 0 *) rewrite -> add_0_r. induction m as [|m' IHm'].
+    + (* m = 0 *) simpl. reflexivity.
+    + (* m = S m' *) simpl. reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IHn'. induction m as [|m' IHm'].
+    + (* m = 0 *) simpl. reflexivity.
+    + (* m = S m' *) simpl. rewrite <- plus_n_Sm. reflexivity.
+Qed.
+
+Theorem specialize_example:
+  forall n,
+  (forall m, m * n = 0) -> n = 0.
+Proof.
+  intros n H.
+  specialize H with (m := 1).
+  simpl in H.
+  rewrite add_comm in H.
+  simpl in H.
+  apply H.
+Qed.
+
+Theorem trans_eq :
+  forall (X:Type) (n m o : X),
+  n = m -> m = o -> n = o.
+Proof.
+  intros X n m o eq1 eq2.
+  rewrite -> eq1. rewrite -> eq2.
+  reflexivity.
+Qed.
+
+Example trans_eq_example''' :
+  forall (a b c d e f : nat),
+  [a;b] = [c;d] -> [c;d] = [e;f] -> [a;b] = [e;f].
+Proof.
+  intros a b c d e f eq1 eq2.
+  specialize trans_eq with (m:=[c;d]) as H.
+  apply H.
+  - (* [a; b] = [c; d] *) apply eq1.
+  - (* [c; d] = [e; f] *) apply eq2.
+Qed.
