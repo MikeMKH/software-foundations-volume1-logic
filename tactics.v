@@ -231,3 +231,23 @@ Proof.
   rewrite <- eq.
   reflexivity.
 Qed.
+
+Theorem S_inj :
+  forall (n m : nat) (b : bool),
+  ((S n) =? (S m)) = b -> (n =? m) = b.
+Proof.
+  intros n m b H.
+  simpl in H.
+  apply H.
+Qed.
+
+Theorem silly4 :
+  forall (n m p q : nat),
+  (n = m -> p = q) -> m = n -> q = p.
+Proof.
+  intros n m p q H1 H2.
+  symmetry in H2.
+  apply H1 in H2.
+  symmetry in H2.
+  apply H2.
+Qed.
