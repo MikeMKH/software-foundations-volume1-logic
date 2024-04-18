@@ -312,3 +312,117 @@ Proof.
   - (* [a; b] = [c; d] *) apply eq1.
   - (* [c; d] = [e; f] *) apply eq2.
 Qed.
+
+Fixpoint double (n:nat) :=
+  match n with
+  | O => O
+  | S n' => S (S (double n'))
+  end.
+
+Theorem double_injective :
+  forall n m,
+  double n = double m -> n = m.
+Proof.
+  intros n. induction n as [| n' IHn'].
+  - (* n = O *) simpl. intros m eq. destruct m as [| m'] eqn:E.
+    + (* m = O *) reflexivity.
+    + (* m = S m' *) discriminate eq.
+  - (* n = S n' *)
+    {
+      intros m eq.
+      destruct m as [| m'] eqn:E.
+      + (* m = O *) discriminate eq.
+      + (* m = S m' *)
+        f_equal.
+        apply IHn'.
+        simpl in eq; injection eq as goal.
+        apply goal.
+    }
+Qed.
+
+Theorem eqb_true :
+  forall n m,
+  n =? m = true -> n = m.
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - (* n = 0 *)
+    {
+      intros m eq. destruct m as [|m'] eqn:E.
+      + (* m = 0 *) reflexivity.
+      + (* m = S m' *) discriminate eq.
+    }
+  - (* n = S n' *)
+    {
+      intros m eq. induction m as [|m' IHm'].
+      + (* m = 0 *)  discriminate eq.
+      + (* m = S m' *)
+        {
+          f_equal.
+          apply IHn'.
+          inversion eq.
+          reflexivity.
+        }
+     }
+Qed.
+
+Theorem plus_n_n_injective :
+  forall n m,
+  n + n = m + m -> n = m.
+Proof.
+  intros n. induction n as [|n]. induction m.
+  - (* n = 0, m = 0 *) reflexivity.
+  - (* n = 0, m = S m *)
+    {
+      simpl; intros H.
+      inversion H.
+    }
+  - (* n = S n, m = S m *)
+    {
+      intros m H.
+      simpl in H.
+      rewrite <- plus_n_Sm in H.
+      destruct m. inversion H.
+      simpl in H. rewrite <- plus_n_Sm in H.
+      inversion H. apply IHn in H1.
+      f_equal. apply H1.
+    }
+Qed.
+
+Theorem double_injective_take2 :
+  forall n m,
+  double n = double m -> n = m.
+Proof.
+  intros n m. generalize dependent n. (* n is back in goal *)
+  induction m as [|m' IHm'].
+  - (* m = 0 *) simpl; intros n eq. destruct n as [|n'] eqn:E.
+    + (* n = 0 *) reflexivity.
+    + (* n = S n' *) discriminate eq.
+  - (* m = S m' *) intros n eq. destruct n as [|n'] eqn:E.
+    + (* n = 0 *) discriminate eq.
+    + (* n = S n' *)
+      {
+        f_equal. apply IHm'.
+        injection eq as goal. apply goal.
+      }
+Qed.
+
+Fixpoint nth_error {X : Type} (l : list X) (n : nat) : option X :=
+  match l with
+  | nil => None
+  | a :: l' => match n with
+               | O => Some a
+               | S n' => nth_error l' n'
+               end
+  end.
+
+Theorem nth_error_after_last :
+  forall (n : nat) (X : Type) (l : list X),
+  length l = n -> nth_error l n = None.
+Proof.
+  intros n X l H. generalize dependent n.
+  - (* n = 0 *) induction l as [|l' IHl']. simpl; reflexivity.
+  intros n H.
+  rewrite <- H.
+  apply IHIHl'.
+  reflexivity.
+Qed.
