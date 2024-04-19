@@ -426,3 +426,62 @@ Proof.
   apply IHIHl'.
   reflexivity.
 Qed.
+
+Definition square n := n * n.
+
+Theorem mult_assoc :
+  forall n m p : nat,
+  n * (m * p) = (n * m) * p.
+Proof. Admitted.
+
+Theorem mul_comm :
+  forall m n : nat,
+  m * n = n * m.
+Proof. Admitted.
+
+Lemma square_mult :
+  forall n m, square (n * m) = square n * square m.
+Proof.
+  intros n m.
+  simpl; unfold square.
+  rewrite -> mult_assoc.
+  assert (H : n * m * n = n * n * m).
+    { rewrite <- mul_comm. apply mult_assoc. }
+  rewrite -> H.
+  rewrite -> mult_assoc.
+  reflexivity.
+Qed.
+
+Definition foo (x: nat) := 5.
+
+Fact silly_fact_1 :
+  forall m, foo m + 1 = foo (m + 1) + 1.
+Proof.
+  intros m.
+  simpl.
+  reflexivity.
+Qed.
+
+Definition bar x :=
+  match x with
+  | O => 5
+  | S _ => 5
+  end.
+
+Fact silly_fact_2 :
+  forall m, bar m + 1 = bar (m + 1) + 1.
+Proof.
+  intros m. destruct m eqn:E.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
+
+Fact silly_fact_2' :
+  forall m, bar m + 1 = bar (m + 1) + 1.
+Proof.
+  intros m.
+  unfold bar.
+  destruct m eqn:E.
+  - reflexivity.
+  - reflexivity.
+Qed.
