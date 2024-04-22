@@ -485,3 +485,60 @@ Proof.
   - reflexivity.
   - reflexivity.
 Qed.
+
+
+Definition sillyfun (n : nat) : bool :=
+  if n =? 3 then false
+  else if n =? 5 then false
+  else false.
+
+Theorem sillyfun_false :
+  forall (n : nat),
+  sillyfun n = false.
+Proof.
+  intros n. unfold sillyfun.
+  destruct (n =? 3) eqn:E1.
+    - (* n =? 3 = true *) reflexivity.
+    - (* n =? 3 = false *) destruct (n =? 5) eqn:E2.
+      + (* n =? 5 = true *) reflexivity.
+      + (* n =? 5 = false *) reflexivity.
+Qed.
+
+Fixpoint split {X Y : Type} (l : list (X*Y)) : (list X) * (list Y) :=
+  match l with
+  | [] => ([], [])
+  | (x, y) :: t =>
+      match split t with
+      | (lx, ly) => (x :: lx, y :: ly)
+      end
+  end.
+  
+Fixpoint combine {X Y : Type} (lx : list X) (ly : list Y) : list (X*Y) :=
+  match lx, ly with
+  | [], _ => []
+  | _, [] => []
+  | x :: tx, y :: ty => (x, y) :: (combine tx ty)
+  end.
+
+Theorem combine_split :
+  forall X Y (l : list (X * Y)) l1 l2,
+  split l = (l1, l2) -> combine l1 l2 = l.
+Proof.
+  intros X Y l. induction l as [|X' l' IHl'].
+  - (* l = [] *)
+    {
+      simpl; intros l1 l2 H.
+      injection H as H1 H2.
+      rewrite <- H1, <- H2.
+      reflexivity.
+    }
+  - (* l = l' :: IHl' *)
+    {
+      destruct X' as [X1 Y1]. simpl. destruct (split l').
+      intros l1 l2 H. injection H as H1 H2.
+      rewrite <- H1, <- H2. simpl.
+      f_equal.
+      assert ( goal : combine x y = l'). { apply IHl'. reflexivity. }
+      apply goal.
+    }
+Qed.
