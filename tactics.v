@@ -542,3 +542,61 @@ Proof.
       apply goal.
     }
 Qed.
+
+Definition sillyfun1 (n : nat) : bool :=
+  if n =? 3 then true
+  else if n =? 5 then true
+  else false.
+
+Theorem sillyfun1_odd :
+  forall (n : nat),
+  sillyfun1 n = true -> odd n = true.
+Proof.
+  intros n eq. unfold sillyfun1 in eq.
+  destruct (n =? 3) eqn:Heqe3.
+  - (* e3 = true *)
+    {
+      apply eqb_true in Heqe3.
+      rewrite -> Heqe3. reflexivity.
+    }
+  - (* e3 = false *)
+    {
+      destruct (n =? 5) eqn:Heqe5.
+      + (* e5 = true *)
+        {
+          apply eqb_true in Heqe5.
+          rewrite -> Heqe5. reflexivity.
+        }
+      + (* e5 = false *) discriminate eq.
+    }
+Qed.
+
+Theorem bool_fn_applied_thrice :
+  forall (f : bool -> bool) (b : bool),
+  f (f (f b)) = f b.
+Proof.
+  intros f b.
+  destruct (b) eqn:He1.
+  destruct (f b) eqn:He2.
+  rewrite -> He1 in He2.
+  rewrite -> He2.
+  rewrite -> He2.
+  rewrite -> He2.
+  - reflexivity.
+  - rewrite -> He1 in He2.
+    rewrite -> He2.
+    + destruct (f false) eqn:He3.
+      simpl; apply He2.
+      apply He3.
+  - destruct (f b) eqn:He2.
+    rewrite -> He1 in He2.
+    rewrite -> He2.
+    destruct (f true) eqn:He3.
+    simpl; apply He3.
+    apply He2.
+    rewrite -> He1 in He2.
+    rewrite -> He2.
+    rewrite -> He2.
+    rewrite -> He2.
+    reflexivity.
+Qed.
