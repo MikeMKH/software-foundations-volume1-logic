@@ -600,3 +600,22 @@ Proof.
     rewrite -> He2.
     reflexivity.
 Qed.
+
+Theorem eqb_sym :
+  forall (n m : nat),
+  (n =? m) = (m =? n).
+Proof.
+  induction n as [|n' IHn'].
+  - (* n = 0 *)
+    {
+      destruct m.
+      + (* m = 0 *) reflexivity.
+      + (* m = S m *) simpl; reflexivity.
+    }
+  - (* n = S n' *)
+    {
+      destruct m.
+      + (* m = 0 *) simpl; reflexivity.
+      + (* m = S m *) simpl; apply IHn'.
+    }
+Qed.
