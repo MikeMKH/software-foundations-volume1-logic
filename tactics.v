@@ -644,3 +644,38 @@ Proof.
       + (* m = S m, p = S p *) simpl; apply IHn.
     }
 Qed.
+
+Definition split_combine_statement : Prop :=
+  forall (A B : Type) (l : list (A * B)) l1 l2,
+  length l1 = length l2 -> combine l1 l2 = l -> split l = (l1, l2).
+
+Theorem split_combine : split_combine_statement.
+Proof.
+  unfold split_combine_statement.
+  induction l.
+  - (* l = [] *)
+    {
+      intros [] [].
+      + (* l1, l2 = [] *) reflexivity.
+      + (* l1 = [], l2 = b :: l *) discriminate.
+      + (* l1 = a :: l, l2 = [] *) discriminate.
+      + (* l1 = a :: l, l2 = b :: l *) discriminate.
+    }
+  - (* l = a :: l *)
+    {
+      intros [] [].
+      + (* l1, l2 = [] *) discriminate.
+      + (* l1 = [], l2 = b :: l *) discriminate.
+      + (* l1 = a :: l, l2 = [] *) discriminate.
+      + (* l1 = a :: l, l2 = b :: l *)
+        {
+          intros H H0.
+          injection H as H. injection H0 as H0.
+          simpl; destruct a.
+          rewrite -> (IHl l0 l1 H H1).
+          injection H0 as Ha Hb.
+          rewrite -> Ha, -> Hb.
+          reflexivity.
+        }
+    }
+Qed.
