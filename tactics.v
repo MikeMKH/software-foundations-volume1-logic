@@ -619,3 +619,28 @@ Proof.
       + (* m = S m *) simpl; apply IHn'.
     }
 Qed.
+
+Theorem eqb_trans :
+  forall n m p,
+  n =? m = true ->
+  m =? p = true ->
+  n =? p = true.
+Proof.
+  induction n.
+  - (* n = 0 *)
+    {
+      destruct m, p.
+      + (* m, p = 0 *) reflexivity.
+      + (* m = 0, p = S p *) discriminate.
+      + (* m = S m, p = 0 *) discriminate.
+      + (* m = S m, p = S p *) discriminate.
+    }
+  - (* n = S n *)
+    {
+      destruct m, p.
+      + (* m, p = 0 *) discriminate.
+      + (* m = 0, p = S p *) discriminate.
+      + (* m = S m, p = 0 *) discriminate.
+      + (* m = S m, p = S p *) simpl; apply IHn.
+    }
+Qed.
