@@ -679,3 +679,54 @@ Proof.
         }
     }
 Qed.
+
+Fixpoint filter {X:Type} (test: X->bool) (l:list X) : list X :=
+  match l with
+  | [] => []
+  | h :: t =>
+    if test h then h :: (filter test t)
+    else filter test t
+  end.
+
+Theorem filter_exercise :
+  forall (X : Type) (test : X -> bool) (x : X) (l lf : list X),
+  filter test l = x :: lf -> test x = true.
+Proof.
+  induction l as [|a l].
+  - (* l = [] *) discriminate.
+  - (* l = a :: l *)
+    {
+      destruct (test a) eqn:H.
+      + (* H : test a = true *)
+        {
+          intros lf eq.
+          simpl in eq. rewrite -> H in eq.
+          injection eq as eq _. rewrite -> eq in H.
+          assumption.
+        }
+      + (* H : test a = false *)
+        {
+          intros lf eq.
+          simpl in eq. rewrite -> H in eq.
+          apply (IHl lf).
+          assumption.
+        }
+   }
+Qed.
+
+Example test_filter1: filter even [1;2;3;4] = [2;4].
+Proof. reflexivity. Qed.
+
+Definition length_is_1 {X : Type} (l : list X) : bool := (length l) =? 1.
+Example test_filter2:
+  filter length_is_1 [ [1; 2]; [3]; [4]; [5;6;7]; []; [8] ]
+  = [ [3]; [4]; [8] ].
+Proof. reflexivity. Qed.
+
+Definition countoddmembers' (l:list nat) : nat := length (filter odd l).
+Example test_countoddmembers'1: countoddmembers' [1;0;3;1;4;5] = 4.
+Proof. reflexivity. Qed.
+Example test_countoddmembers'2: countoddmembers' [0;2;4] = 0.
+Proof. reflexivity. Qed.
+Example test_countoddmembers'3: countoddmembers' nil = 0.
+Proof. reflexivity. Qed.
