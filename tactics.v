@@ -714,19 +714,53 @@ Proof.
    }
 Qed.
 
-Example test_filter1: filter even [1;2;3;4] = [2;4].
+Fixpoint forallb {A : Type} (test : A -> bool) (l : list A) : bool :=
+  match l with
+  | a :: l' => test a && forallb test l'
+  | [] => true
+  end.
+
+Fixpoint existsb {A : Type} (test : A -> bool) (l : list A) : bool :=
+  match l with
+  | a :: l' => test a || forallb test l'
+  | [] => false
+  end.
+
+Fixpoint existsb' {A : Type} (test : A -> bool) (l : list A) : bool :=
+  negb (forallb (fun a => negb (test a)) l).
+
+Example test_forallb_1 : forallb odd [1;3;5;7;9] = true.
+Proof. reflexivity. Qed.
+Example test_forallb_2 : forallb negb [false;false] = true.
+Proof. reflexivity. Qed.
+Example test_forallb_3 : forallb even [0;2;4;5] = false.
+Proof. reflexivity. Qed.
+Example test_forallb_4 : forallb (eqb 5) [] = true.
 Proof. reflexivity. Qed.
 
-Definition length_is_1 {X : Type} (l : list X) : bool := (length l) =? 1.
-Example test_filter2:
-  filter length_is_1 [ [1; 2]; [3]; [4]; [5;6;7]; []; [8] ]
-  = [ [3]; [4]; [8] ].
+Example test_existsb_1 : existsb (eqb 5) [0;2;3;6] = false.
+Proof. reflexivity. Qed.
+Example test_existsb_2 : existsb (andb true) [true;true;false] = true.
+Proof. reflexivity. Qed.
+Example test_existsb_3 : existsb odd [1;0;0;0;0;3] = true.
+Proof. reflexivity. Qed.
+Example test_existsb_4 : existsb even [] = false.
 Proof. reflexivity. Qed.
 
-Definition countoddmembers' (l:list nat) : nat := length (filter odd l).
-Example test_countoddmembers'1: countoddmembers' [1;0;3;1;4;5] = 4.
-Proof. reflexivity. Qed.
-Example test_countoddmembers'2: countoddmembers' [0;2;4] = 0.
-Proof. reflexivity. Qed.
-Example test_countoddmembers'3: countoddmembers' nil = 0.
-Proof. reflexivity. Qed.
+Theorem existsb_existsb' :
+  forall (X : Type) (test : X -> bool) (l : list X),
+  existsb test l = existsb' test l.
+Proof.
+  intros X test l.
+  unfold existsb. unfold existsb'.
+  induction l as [|x' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = x' :: l' *)
+    {
+      simpl; destruct (test x') eqn:testH.
+      + (* true *) simpl; reflexivity.
+      + (* false *)
+        {
+          simpl.
+(* at this point every example I found uses apply IHl' but that does not work *)
+Admitted.
