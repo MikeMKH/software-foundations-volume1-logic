@@ -36,3 +36,109 @@ Proof.
 Qed.
 
 Check @eq : forall A : Type, A -> A -> Prop.
+
+Example and_example : 3 + 4 = 7 /\ 2 * 2 = 4. (* written /\ *)
+Proof.
+  split.
+  - (* 3 + 4 = 7 *) reflexivity.
+  - (* 2 * 2 = 4 *) reflexivity.
+Qed.
+
+Example and_exercise :
+  forall n m : nat, n + m = 0 -> n = 0 /\ m = 0.
+Proof.
+  intros n m H.
+  destruct n as [|n'].
+  - (* 0 = 0 /\ m = 0 *)
+    {
+      split.
+      + (* 0 = 0 *) reflexivity.
+      + (* m = 0 *)
+        {
+          destruct m as [|m'].
+          - (* 0 = 0 *) reflexivity.
+          - (* S m' = 0 *) discriminate.
+        }
+    }
+  - (* S n' = 0 /\ m = 0 *)
+    {
+      split.
+      + (* S n' = 0 *) discriminate.
+      + (* m = 0 *)
+        {
+          destruct m as [|m'].
+          - (* 0 = 0 *) reflexivity.
+          - (* s m' = 0 *) discriminate.
+        }
+    }
+Qed.
+
+Lemma and_example2 :
+  forall n m : nat, n = 0 /\ m = 0 -> n + m = 0.
+Proof.
+  intros n m H.
+  destruct H as [Hn Hm].
+  rewrite Hn. rewrite Hm.
+  reflexivity.
+Qed.
+
+Lemma and_example2' :
+  forall n m : nat, n = 0 /\ m = 0 -> n + m = 0.
+Proof.
+  intros n m [Hn Hm].
+  rewrite Hn. rewrite Hm.
+  reflexivity.
+Qed.
+
+Lemma and_example2'' :
+  forall n m : nat, n = 0 /\ m = 0 -> n + m = 0.
+Proof.
+  (* intros n m Hn Hm. (* does not work on my system *) *)
+  intros n m [Hn Hm].
+  rewrite Hn. rewrite Hm.
+  reflexivity.
+Qed.
+
+Lemma and_example3 :
+  forall n m : nat, n + m = 0 -> n * m = 0.
+Proof.
+  intros n m H.
+  apply and_exercise in H.
+  destruct H as [Hn Hm].
+  rewrite Hn. reflexivity.
+Qed.
+
+Lemma proj1 :
+  forall P Q : Prop, P /\ Q -> P.
+Proof.
+  intros P Q HPQ.
+  destruct HPQ as [HP _].
+  apply HP.
+Qed.
+
+Lemma proj2 :
+  forall P Q : Prop, P /\ Q -> Q.
+Proof.
+  intros P Q [_ HQ].
+  assumption.
+Qed.
+
+Theorem and_commut :
+  forall P Q : Prop, P /\ Q -> Q /\ P.
+Proof.
+  intros P Q [HP HQ].
+  split.
+    - (* left *) apply HQ.
+    - (* right *) apply HP.
+Qed.
+
+Theorem and_assoc :
+  forall P Q R : Prop, P /\ (Q /\ R) -> (P /\ Q) /\ R.
+Proof.
+  intros P Q R [HP [HQ HR]].
+  split.
+  - (* P /\ Q *) split.
+    + apply HP.
+    + apply HQ.
+  - (* R *) apply HR.
+Qed.
