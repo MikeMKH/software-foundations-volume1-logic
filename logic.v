@@ -142,3 +142,49 @@ Proof.
     + apply HQ.
   - (* R *) apply HR.
 Qed.
+
+Lemma factor_is_O:
+  forall n m : nat, n = 0 \/ m = 0 -> n * m = 0.
+Proof.
+  (* This pattern implicitly does case analysis on n = 0 ∨ m = 0 *)
+  intros n m [Hn | Hm].
+  - (* Here, n = 0 *)
+    rewrite Hn. reflexivity.
+  - (* Here, m = 0 *)
+    rewrite Hm. rewrite <- mult_n_O.
+    reflexivity.
+Qed.
+
+Lemma or_intro_l :
+  forall A B : Prop, A -> A \/ B.
+Proof.
+  intros A B HA.
+  left.
+  apply HA.
+Qed.
+
+Lemma zero_or_succ :
+  forall n : nat, n = 0 \/ n = S (pred n).
+Proof.
+  intros [|n'].
+  - left. reflexivity.
+  - right. reflexivity.
+Qed.
+
+Lemma mult_is_O :
+  forall n m, n * m = 0 -> n = 0 \/ m = 0.
+Proof.
+  intros n m H. destruct n as [|n'].
+  - (* n = 0 *) left. reflexivity.
+  - (* n = S n' *) right. simpl in H. destruct m as [|m'].
+    + (* m = 0 *) reflexivity.
+    + (* m = S m' *) inversion H.
+Qed.
+
+Theorem or_commut :
+  forall P Q : Prop, P \/ Q -> Q \/ P.
+Proof.
+  intros P Q [HP | HQ].
+  - (* HP *) right. apply HP.
+  - (* HQ *) left. apply HQ.
+Qed.
