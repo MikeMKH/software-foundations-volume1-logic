@@ -188,3 +188,129 @@ Proof.
   - (* HP *) right. apply HP.
   - (* HQ *) left. apply HQ.
 Qed.
+
+Definition not (P:Prop) := P -> False.
+Check not : Prop -> Prop.
+Notation "~ x" := (not x) : type_scope.
+
+Theorem ex_falso_quodlibet :
+  forall (P:Prop),
+  False -> P.
+Proof.
+  intros P contra.
+  destruct contra.
+Qed.
+
+Theorem not_implies_our_not :
+  forall (P:Prop),
+  ~ P -> (forall (Q:Prop), P -> Q).
+Proof.
+  intros P H Q H0.
+  apply H in H0.
+  destruct H0.
+Qed.
+
+Notation "x <> y" := (~(x = y)).
+
+Theorem zero_not_one : 0 <> 1.
+Proof.
+  unfold not.
+  intros contra.
+  discriminate contra.
+Qed.
+
+Theorem not_False :
+  ~ False.
+Proof.
+  unfold not.
+  intros H.
+  destruct H.
+Qed.
+
+Theorem contradiction_implies_anything :
+  forall P Q : Prop, (P /\ ~P) -> Q.
+Proof.
+  intros P Q [HP HNA].
+  unfold not in HNA. apply HNA in HP.
+  destruct HP.
+Qed.
+
+Theorem double_neg :
+  forall P : Prop, P -> ~~P.
+Proof.
+  intros P H.
+  unfold not.
+  intros G.
+  apply G.
+  apply H.
+Qed.
+
+Theorem contrapositive :
+  forall (P Q : Prop),
+  (P -> Q) -> (~Q -> ~P).
+Proof.
+  intros P Q H.
+  unfold not.
+  intros H0 H1.
+  apply H0. apply H.
+  assumption.
+Qed.
+
+Theorem not_both_true_and_false :
+  forall P : Prop,
+  ~ (P /\ ~P).
+Proof.
+  intros P.
+  unfold not.
+  intros H.
+  apply H. destruct H.
+  assumption.
+Qed.
+
+Theorem de_morgan_not_or :
+  forall (P Q : Prop), ~ (P \/ Q) -> ~P /\ ~Q.
+Proof.
+  intros P Q H.
+  unfold not.
+  split.
+  - (* P -> False *)
+    {
+      intros H0.
+      unfold not in H. apply H.
+      left.
+      assumption.
+    }
+  - (* Q -> False *)
+    {
+      intros H0.
+      unfold not in H. apply H.
+      right.
+      assumption.
+    }
+Qed.
+
+Theorem not_true_is_false :
+  forall b : bool,
+  b <> true -> b = false.
+Proof.
+  intros b H.
+  destruct b eqn:HE.
+  - (* b = true *)
+    unfold not in H.
+    apply ex_falso_quodlibet.
+    apply H. reflexivity.
+  - (* b = false *)
+    reflexivity.
+Qed.
+
+Theorem not_true_is_false' :
+  forall b : bool,
+  b <> true -> b = false.
+Proof.
+  intros [] H. (* note implicit destruct b here *)
+  - (* b = true *)
+    unfold not in H.
+    exfalso. (* <=== *)
+    apply H. reflexivity.
+  - (* b = false *) reflexivity.
+Qed.
