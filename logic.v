@@ -314,3 +314,20 @@ Proof.
     apply H. reflexivity.
   - (* b = false *) reflexivity.
 Qed.
+
+Lemma True_is_true : True.
+Proof. apply I. Qed.
+
+Definition disc_fn (n: nat) : Prop :=
+  match n with
+  | O => True
+  | S _ => False
+  end.
+  
+Theorem disc_example :
+  forall n, ~ (O = S n).
+Proof.
+  intros n H1.
+  assert (H2 : disc_fn O). { simpl. apply I. }
+  rewrite H1 in H2. simpl in H2. apply H2.
+Qed.
