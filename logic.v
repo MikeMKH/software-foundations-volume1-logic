@@ -331,3 +331,71 @@ Proof.
   assert (H2 : disc_fn O). { simpl. apply I. }
   rewrite H1 in H2. simpl in H2. apply H2.
 Qed.
+
+Definition iff (P Q : Prop) := (P -> Q) /\ (Q -> P).
+Notation "P <-> Q" := (iff P Q)
+                      (at level 95, no associativity)
+                      : type_scope.
+
+Theorem iff_sym :
+  forall P Q : Prop,
+  (P <-> Q) -> (Q <-> P).
+Proof.
+  intros P Q [HAB HBA].
+  split.
+  - (* -> *) apply HBA.
+  - (* <- *) apply HAB.
+Qed.
+
+Lemma not_true_iff_false :
+  forall b, b <> true <-> b = false.
+Proof.
+  intros b. split.
+  - (* -> *) apply not_true_is_false.
+  - (* <- *) intros H. rewrite H. intros H'. discriminate H'.
+Qed.
+
+Lemma apply_iff_example1 :
+  forall P Q R : Prop, (P <-> Q) -> (Q -> R) -> (P -> R).
+Proof.
+  intros P Q R Hiff H HP.
+  apply H. apply Hiff. apply HP.
+Qed.
+
+Lemma apply_iff_example2 :
+  forall P Q R : Prop, (P <-> Q) -> (P -> R) -> (Q -> R).
+Proof.
+  intros P Q R Hiff H HQ.
+  apply H. apply Hiff. apply HQ.
+Qed.
+
+Theorem or_distributes_over_and :
+  forall P Q R : Prop,
+  P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
+Proof.
+  intros P Q R. split.
+  - (* -> *)
+    {
+      intros [HP | [HQ HR]].
+      + (* P *)
+        {
+          split.
+          - (* P ∨ Q *) left. assumption.
+          - (* P ∨ R *) left. assumption.
+        }
+      + (* Q R *)
+        {
+          split.
+          - (* P ∨ Q *) right. assumption.
+          - (* P ∨ R *) right. assumption.
+        }
+    }
+  - (* <- *)
+    intros [[HP | HQ] [HP' | HR]].
+    + (* P *) left. assumption.
+    + (* P R *) left. assumption.
+    + (* Q P *) left. assumption.
+    + (* Q R *) right. split.
+      * (* Q *) assumption.
+      * (* R *) assumption.
+Qed.
