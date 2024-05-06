@@ -399,3 +399,37 @@ Proof.
       * (* Q *) assumption.
       * (* R *) assumption.
 Qed.
+
+From Coq Require Import Setoids.Setoid.
+
+Lemma mul_eq_0 :
+  forall n m, n * m = 0 <-> n = 0 \/ m = 0.
+Proof.
+  split.
+  - (* n * m = 0 → n = 0 ∨ m = 0 *) apply mult_is_O.
+  - (* n = 0 ∨ m = 0 → n * m = 0 *) apply factor_is_O.
+Qed.
+
+Theorem or_assoc :
+  forall P Q R : Prop, P \/ (Q \/ R) <-> (P \/ Q) \/ R.
+Proof.
+  intros P Q R. split.
+  - (* P ∨ Q ∨ R → (P ∨ Q) ∨ R *)
+    {
+      intros [H | [H | H]].
+      + (* P *) left. left. assumption.
+      + (* Q *) left. right. assumption.
+      + (* R *) right. assumption.
+    }
+  - (* P ∨ Q) ∨ R → P ∨ Q ∨ R *)
+    {
+      intros [[H | H] | H].
+      + (* P *) left. assumption.
+      + (* Q *) right. left. assumption.
+      + (* R *) right. right. assumption.
+    }
+Qed.
+
+Lemma mul_eq_0_ternary :
+  forall n m p, n * m * p = 0 <-> n = 0 \/ m = 0 \/ p = 0.
+Proof. Admitted. (* the definition given in the text does not work *)
