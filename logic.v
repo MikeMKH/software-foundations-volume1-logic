@@ -433,3 +433,72 @@ Qed.
 Lemma mul_eq_0_ternary :
   forall n m p, n * m * p = 0 <-> n = 0 \/ m = 0 \/ p = 0.
 Proof. Admitted. (* the definition given in the text does not work *)
+
+Fixpoint double (n:nat) :=
+  match n with
+  | O => O
+  | S n' => S (S (double n'))
+  end.
+
+Definition Even x := exists n : nat, x = double n.
+
+Lemma four_is_Even : Even 4.
+Proof.
+  unfold Even. exists 2. reflexivity.
+Qed.
+
+Theorem exists_example_2 :
+  forall n,
+  (exists m, n = 4 + m) ->
+  (exists o, n = 2 + o).
+Proof.
+  intros n [m H].
+  exists (2 + m).
+  apply H.
+Qed.
+
+Theorem dist_not_exists :
+  forall (X:Type) (P : X -> Prop),
+  (forall x, P x) -> ~ (exists x, ~ P x).
+Proof.
+  unfold not.
+  intros X P H [x N].
+  apply N. apply H.
+Qed.
+
+Theorem dist_exists_or :
+  forall (X:Type) (P Q : X -> Prop),
+  (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
+Proof.
+  intros X P Q. split.
+  - (* (∃ x : X, P x ∨ Q x) → (∃ x : X, P x) ∨ (∃ x : X, Q x) *)
+    {
+      intros [x [Px | Qx]].
+      + (* P x *) left. exists x. assumption.
+      + (* Q x *) right. exists x. assumption.
+    }
+  - (* (∃ x : X, P x) ∨ (∃ x : X, Q x) → ∃ x : X, P x ∨ Q x *)
+    {
+      intros [[x Px] | [x Qx]].
+      + (* P x *) exists x. left. assumption.
+      + (* Q x *) exists x. right. assumption.
+    }
+Qed.
+
+Fixpoint leb (n m : nat) : bool :=
+  match n with
+  | O => true
+  | S n' =>
+      match m with
+      | O => false
+      | S m' => leb n' m'
+      end
+  end.
+
+Notation "x <=? y" := (leb x y) (at level 70) : nat_scope.
+
+Theorem leb_plus_exists : forall n m, n <=? m = true -> exists x, m = n+x.
+Proof. Admitted.
+
+Theorem plus_exists_leb : forall n m, (exists x, m = n+x) -> n <=? m = true.
+Proof. Admitted.
