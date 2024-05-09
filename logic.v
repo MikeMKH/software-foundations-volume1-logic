@@ -576,3 +576,26 @@ Proof.
       rewrite <- F. apply In_map. apply I.
     }
 Qed.
+
+Theorem In_app_iff :
+  forall A l l' (a:A),
+  In a (l++l') <-> In a l \/ In a l'.
+Proof.
+  intros A l. split.
+  induction l as [|h t IH].
+  - (* [] *) simpl; right. apply H.
+  - (* h :: t *) simpl; intros [H | H].
+    + (* h = a *) left. left. assumption.
+    + (* In a (t ++ l') *) apply IH in H. destruct H.
+      * (* In a t *) left. right. assumption.
+      * (* In a l' *) right. assumption.
+  - induction l as [|h t].
+    + (* [] *) intros [H | H].
+      * inversion H.
+      * simpl; assumption.
+    + (* h :: t *) intros [H | H].
+      * simpl; inversion H.
+        { left. assumption. }
+        { right. apply IHt. left. assumption. }
+      * simpl. right. apply IHt. right. assumption.
+Qed.
