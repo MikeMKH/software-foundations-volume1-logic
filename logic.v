@@ -502,3 +502,77 @@ Proof. Admitted.
 
 Theorem plus_exists_leb : forall n m, (exists x, m = n+x) -> n <=? m = true.
 Proof. Admitted.
+
+Notation "x :: y" := (cons x y)
+                     (at level 60, right associativity).
+Notation "[ ]" := nil.
+Notation "[ x ; .. ; y ]" := (cons x .. (cons y []) ..).
+Notation "x ++ y" := (app x y)
+                     (at level 60, right associativity).
+
+Fixpoint In {A : Type} (x : A) (l : list A) : Prop :=
+  match l with
+  | [] => False
+  | x' :: l' => x' = x \/ In x l'
+  end.
+
+Example In_example_1 : In 4 [1; 2; 3; 4; 5].
+Proof.
+  simpl. right. right. right. left. reflexivity.
+Qed.
+
+Example In_example_2 :
+  forall n, In n [2; 4] ->
+  exists n', n = 2 * n'.
+Proof.
+  simpl.
+  intros n [H | [H | []]].
+  - exists 1. rewrite <- H. reflexivity.
+  - exists 2. rewrite <- H. reflexivity.
+Qed.
+
+Fixpoint map {X Y : Type} (f : X->Y) (l : list X) : list Y :=
+  match l with
+  | [] => []
+  | h :: t => (f h) :: (map f t)
+  end.
+
+Theorem In_map :
+  forall (A B : Type) (f : A -> B) (l : list A) (x : A),
+  In x l -> In (f x) (map f l).
+Proof.
+  intros A B f l x.
+  induction l as [|x' l' IHl'].
+  - (* l = nil, contradiction *)
+    simpl. intros [].
+  - (* l = x' :: l' *)
+    simpl. intros [H | H].
+    + rewrite -> H. left. reflexivity.
+    + right. apply IHl'. apply H.
+Qed.
+
+Theorem In_map_iff :
+  forall (A B : Type) (f : A -> B) (l : list A) (y : B),
+  In y (map f l) <-> exists x, f x = y /\ In x l.
+Proof.
+  intros. split.
+  induction l as [|x' l' IHl'].
+  - (* [] *) simpl; contradiction.
+  - (* x' :: l' *) simpl; intros [H | H].
+    + (*  x' = y *) 
+      {
+        exists x'. split.
+        apply H. left. reflexivity.
+      }
+    + (* In y (map f l') *)
+      {
+        apply IHl' in H. destruct H as [w [F I]].
+        exists w. split.
+        apply F. right. apply I.
+      }
+  - (* (∃ x : A, f x = y ∧ In x l) → In y (map f l) *)
+    {
+      intros [w [F I]].
+      rewrite <- F. apply In_map. apply I.
+    }
+Qed.
