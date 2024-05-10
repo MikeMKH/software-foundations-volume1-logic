@@ -599,3 +599,38 @@ Proof.
         { right. apply IHt. left. assumption. }
       * simpl. right. apply IHt. right. assumption.
 Qed.
+
+Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop :=
+  match l with
+  | [] => True
+  | h :: t => P h /\ All P t
+  end.
+
+Theorem All_In :
+  forall T (P : T -> Prop) (l : list T),
+  (forall x, In x l -> P x) <-> All P l.
+Proof.
+  intros T P l. split.
+  - (* <- *) induction l as [|h t].
+    + (* [] *) reflexivity.
+    + (* h :: t *)
+      {
+        simpl. intros H. split.
+        * (* P h *) apply H. left. reflexivity.
+        * (* All P t *)
+          {
+            apply IHt. intros x G.
+            apply H. right. apply G.
+          }
+      }
+  - (* -> *) induction l as [|h t].
+    + (* [] *) intros _ __ G. inversion G.
+    + (* h :: t *)
+      {
+        intros H x H0.
+        simpl in H. destruct H as [PH APT].
+        simpl in H0. destruct H0 as [HX | IXT].
+        * rewrite <- HX. assumption.
+        * apply IHt. assumption. assumption.
+      }
+Qed.
