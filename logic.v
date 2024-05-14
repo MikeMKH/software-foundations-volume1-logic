@@ -733,3 +733,99 @@ Proof.
   rewrite <- Hm.
   reflexivity.
 Qed.
+
+Fixpoint even (n:nat) : bool :=
+  match n with
+  | O => true
+  | S O => false
+  | S (S n') => even n'
+  end.
+
+Example even_42_bool : even 42 = true.
+Proof. reflexivity. Qed.
+
+Example even_42_prop : Even 42.
+Proof.
+  unfold Even.
+  exists 21.
+  reflexivity.
+Qed.
+
+Lemma even_double : forall k, even (double k) = true.
+Proof.
+  intros k. induction k as [|k' IHk'].
+  - (* k = 0 *) reflexivity.
+  - (* k = S k' *) simpl; assumption.
+Qed.
+
+Theorem negb_involutive :
+  forall b : bool, negb (negb b) = b.
+Proof.
+  intros b. destruct b eqn:E.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Theorem even_S :
+  forall n : nat, even (S n) = negb (even n).
+Proof.
+  intros n.
+  induction n as [|n' IHn'].
+  - simpl. reflexivity.
+  - rewrite -> IHn'. rewrite -> negb_involutive. reflexivity.
+Qed.
+
+Lemma even_double_conv :
+  forall n, exists k,
+  n = if even n then double k else S (double k).
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - (* n = 0 *) exists 0. reflexivity.
+  - (* n = S n' *)
+    {
+      rewrite -> even_S. destruct IHn' as [k HE].
+      destruct (even n').
+      - (* even n' = true *)
+        {
+          destruct k as [|k' IHk'].
+          + (* k = 0 *)
+            {
+              exists 0.
+              rewrite <- HE.
+              simpl; reflexivity.
+            }
+          + (* k = S k' *)
+            {
+              simpl. rewrite -> HE.
+              exists (S k').
+              reflexivity.
+            }
+         }
+      - (* even n' = false *)
+        {
+          simpl.
+          destruct k as [|k' IHk'].
+          + (* k = 0 *)
+            {
+              exists 1.
+              rewrite -> HE.
+              reflexivity.
+            }
+          + (* k = S k' *)
+            {
+              rewrite -> HE. simpl.
+              exists (S (S k')). simpl.
+              reflexivity.
+            }
+       }
+    }
+Qed.
+
+Theorem even_bool_prop :
+  forall n, even n = true <-> Even n.
+Proof.
+  intros n. split.
+  - intros H. destruct (even_double_conv n) as [k Hk].
+    rewrite Hk. rewrite H. exists k. reflexivity.
+  - intros [k Hk]. rewrite Hk. apply even_double.
+Qed.
