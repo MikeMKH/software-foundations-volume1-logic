@@ -829,3 +829,108 @@ Proof.
     rewrite Hk. rewrite H. exists k. reflexivity.
   - intros [k Hk]. rewrite Hk. apply even_double.
 Qed.
+
+Fixpoint eqb (n m : nat) : bool :=
+  match n with
+  | O => match m with
+         | O => true
+         | S m' => false
+         end
+  | S n' => match m with
+            | O => false
+            | S m' => eqb n' m'
+            end
+  end.
+
+Notation "x =? y" := (eqb x y) (at level 70) : nat_scope.
+
+Theorem eqb_true :
+  forall n m, n =? m = true -> n = m.
+Proof. Admitted.
+
+Theorem eqb_refl :
+  forall n : nat, (n =? n) = true.
+Proof. Admitted.
+
+Theorem eqb_eq :
+  forall n1 n2 : nat,
+  n1 =? n2 = true <-> n1 = n2.
+Proof.
+  intros n1 n2. split.
+  - apply eqb_true.
+  - intros H. rewrite H. rewrite eqb_refl. reflexivity.
+Qed.
+
+Definition is_even_prime n :=
+  if n =? 2 then true
+  else false.
+
+Example even_10 : Even 10.
+Proof.
+  unfold Even.
+  exists 5.
+  reflexivity.
+Qed.
+
+Example even_10' : even 10 = true.
+Proof. reflexivity. Qed.
+
+Example even_10'' : Even 10.
+Proof. apply even_bool_prop. reflexivity. Qed.
+
+Example not_even_11 : even 11 = false.
+Proof. reflexivity. Qed.
+
+Example not_even_11' : ~(Even 11).
+Proof.
+  (* text uses rewrite <- even_bool_prop. which does not work *)
+Admitted.
+
+Lemma plus_eqb_example :
+  forall n m p : nat,
+  n =? m = true -> n + p =? m + p = true.
+Proof.
+  intros n m p H.
+  (* text uses rewrite eqb_eq in H. which does not work *)
+Admitted.
+
+Definition andb (b1:bool) (b2:bool) : bool :=
+  match b1 with
+  | true => b2
+  | false => false
+  end.
+
+Notation "x && y" := (andb x y).
+
+Lemma true_eq_true : true = true.
+Proof. reflexivity. Qed.
+
+Theorem andb_true_iff :
+  forall b1 b2:bool,
+  b1 && b2 = true <-> b1 = true /\ b2 = true.
+Proof.
+  intros b1 b2. split.
+  - (* -> *)
+    {
+      destruct b1.
+      + (* b1 = true *)
+        {
+          destruct b2.
+          * (* b2 = true *) split. reflexivity. reflexivity.
+          * (* b2 = false *) intros H. inversion H.
+        }
+      + (* b1 = false *) intros H. inversion H.
+   }
+ - (* <- *)
+   {
+     destruct b1.
+     + (* b1 = true *)
+       {
+         destruct b2.
+         * (* b2 = true *) split.
+         * (* b2 = false *) intros H. inversion H. discriminate H1.
+       }
+     + (* b1 = false *) intros H. inversion H. discriminate H0.
+   }
+Qed.
+   
