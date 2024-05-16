@@ -902,9 +902,6 @@ Definition andb (b1:bool) (b2:bool) : bool :=
 
 Notation "x && y" := (andb x y).
 
-Lemma true_eq_true : true = true.
-Proof. reflexivity. Qed.
-
 Theorem andb_true_iff :
   forall b1 b2:bool,
   b1 && b2 = true <-> b1 = true /\ b2 = true.
@@ -933,4 +930,54 @@ Proof.
      + (* b1 = false *) intros H. inversion H. discriminate H0.
    }
 Qed.
-   
+
+Definition orb (b1:bool) (b2:bool) : bool :=
+  match b1 with
+  | true => true
+  | false => b2
+  end.
+
+Notation "x || y" := (orb x y).
+
+Theorem orb_true_iff :
+  forall b1 b2,
+  b1 || b2 = true <-> b1 = true \/ b2 = true.
+Proof.
+  intros b1 b2. split.
+  - (* -> *)
+    {
+      destruct b1.
+      + (* b1 = true *)
+        {
+          destruct b2.
+          * (* b2 = true *) right. reflexivity.
+          * (* b2 = false *) left. reflexivity.
+        }
+      + (* b1 = false *)
+        {
+          destruct b2.
+          * (* b2 = true *) right. reflexivity.
+          * (* b2 = false *) intros H. discriminate H.
+        }
+    }
+  - (* <- *)
+    {
+      destruct b1.
+      + (* b1 = true *)
+        {
+          destruct b2.
+          * (* b2 = true *) intros H. reflexivity.
+          * (* b2 = false *) intros H. reflexivity.
+        }
+      + (* b1 = false *)
+        {
+          destruct b2.
+          * (* b2 = true *) intros H. reflexivity.
+          * (* b2 = false *)
+            {
+              intros H. inversion H.
+              discriminate H0. discriminate H0.
+            }
+        }
+    }
+Qed.
