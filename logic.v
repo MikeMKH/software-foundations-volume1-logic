@@ -981,3 +981,43 @@ Proof.
         }
     }
 Qed.
+
+Fixpoint beq_nat n m {struct n} : bool :=
+  match n, m with
+    | O, O => true
+    | O, S _ => false
+    | S _, O => false
+    | S n1, S m1 => beq_nat n1 m1
+  end.
+
+Lemma beq_nat_refl : forall n, true = beq_nat n n.
+Proof.
+  intro x; induction x; simpl in |- *; auto.
+Qed.
+
+Definition beq_nat_eq : forall x y, true = beq_nat x y -> x = y.
+Proof. Admitted.
+
+Lemma beq_nat_true : forall x y, beq_nat x y = true -> x=y.
+Proof. Admitted.
+
+Theorem eqb_neq :
+  forall x y : nat,
+  x =? y = false <-> x <> y.
+Proof.
+  intros x y. split.
+  - (* -> *)
+    {
+      intros H G.
+      rewrite G in H.
+      rewrite <- beq_nat_refl in H.
+      inversion H.
+    }
+  - (* <- *)
+    {
+      intros H.
+      destruct (beq_nat x y) eqn:G.
+      apply beq_nat_true in G.
+      apply H in G. destruct G. assumption.
+    }
+Qed.
