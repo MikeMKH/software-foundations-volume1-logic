@@ -1021,3 +1021,55 @@ Proof.
       apply H in G. destruct G. assumption.
     }
 Qed.
+
+Fixpoint eqb_list {A : Type}
+  (eqb : A -> A -> bool) (l1 l2 : list A) : bool :=
+  match l1 with
+  | [] => match l2 with
+         | [] => true
+         | _ => false
+         end
+  | h1 :: t1 => match l2 with
+              | [] => false
+              | h2 :: t2 => eqb h1 h2 && eqb_list eqb t1 t2
+              end
+  end.
+                  
+
+Theorem eqb_list_true_iff :
+  forall A (eqb : A -> A -> bool),
+  (forall a1 a2, eqb a1 a2 = true <-> a1 = a2) ->
+  forall l1 l2, eqb_list eqb l1 l2 = true <-> l1 = l2.
+Proof.
+  intros A eqb H. 
+  induction l1 as [|h1 t1 IHl1].
+  - split.
+    + (* l1 = [] *) intros G. destruct l2 as [|h2 t2].
+      * (* l2 = [] *) reflexivity.
+      * (* l2 = h2 :: t2 *) inversion G.
+    + (* l1 = h1 :: t1 *) intros G. destruct l2 as [|h2 t2].
+      * (* l2 = [] *) reflexivity.
+      * (* l2 = h2 :: t2 *) inversion G.
+  - induction l2 as [|h2 t2].
+    + (* l2 = [] *) split.
+      * (* -> *) intros G. inversion G.
+      * (* <- *) intros G. inversion G.
+    + (* l2 = h2 :: t2 *) simpl. split.
+      * (* -> *)
+        {
+          intros G.
+          apply andb_true_iff in G. destruct G as [G1 G2].
+          apply IHl1 in G2.
+          apply H in G1.
+          rewrite <- G1. rewrite <- G2.
+          reflexivity.
+        }
+      * (* <- *)
+        {
+          intros G. inversion G.
+          apply andb_true_iff.
+          split.
+          - (* -> *) apply H. reflexivity.
+          - (* <- *) rewrite <- H2. apply IHl1. reflexivity.
+        }
+Qed.
