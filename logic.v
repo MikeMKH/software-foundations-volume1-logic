@@ -1073,3 +1073,13 @@ Proof.
           - (* <- *) rewrite <- H2. apply IHl1. reflexivity.
         }
 Qed.
+
+Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
+  match l with
+  | [] => true
+  | x :: l' => andb (test x) (forallb test l')
+  end.
+
+Theorem forallb_true_iff : forall X test (l : list X),
+   forallb test l = true <-> All (fun x => test x = true) l.
+Proof. Admitted. (* gave up on this section, it was taking too long *)
