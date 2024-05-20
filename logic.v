@@ -1082,4 +1082,78 @@ Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
 
 Theorem forallb_true_iff : forall X test (l : list X),
    forallb test l = true <-> All (fun x => test x = true) l.
-Proof. Admitted. (* gave up on this section, it was taking too long *)
+Proof. Admitted.
+(* this section was taking too long, so I gave up,
+   I am just doing this for fun anyway *)
+
+Example function_equality_ex1 :
+  (fun x => 3 + x) = (fun x => (pred 4) + x).
+Proof. reflexivity. Qed.
+
+Axiom functional_extensionality : forall {X Y: Type} {f g : X -> Y},
+  (forall (x:X), f x = g x) -> f = g.
+
+Example function_equality_ex2 :
+  (fun x => plus x 1) = (fun x => plus 1 x).
+Proof.
+  apply functional_extensionality. intros x.
+  apply add_comm.
+Qed.
+
+Print Assumptions function_equality_ex2.
+(*
+Axioms:
+functional_extensionality
+  : forall (X Y : Type) (f g : X -> Y),
+(forall x : X, f x = g x) -> f = g
+add_comm : forall n m : nat, n + m = m + n
+*)
+
+Fixpoint rev_append {X} (l1 l2 : list X) : list X :=
+  match l1 with
+  | [] => l2
+  | x :: l1' => rev_append l1' (x :: l2)
+  end.
+
+Definition tr_rev {X} (l : list X) : list X :=
+  rev_append l [].
+
+Theorem app_assoc :
+  forall A (l m n:list A),
+  l ++ m ++ n = (l ++ m) ++ n.
+Proof.
+  intros A l m n. induction l as [|A' l' IHl'].
+  - (* l = [] *) simpl; reflexivity.
+  - (* l = l' *)
+    {
+      simpl; rewrite -> IHl'.
+      reflexivity.
+    }
+Qed.
+
+Theorem tr_rev_correct :
+  forall X, @tr_rev X = @rev X.
+Proof.
+  intros X.
+  apply functional_extensionality.
+  unfold tr_rev.
+  intros x. induction x as [|h t IH].
+  - (* x = [] *) reflexivity.
+  - (* x = h :: t *)
+    {
+      simpl. rewrite <- IH.
+      assert ( H: forall T l1 l2, @rev_append T l1 l2 = @rev_append T l1 [] ++ l2).
+      { intros T. induction l1 as [|h1 t1 IH1].
+        - (* l1 = [] *) simpl; reflexivity.
+        - (* l1 = h1 :: t1*)
+          {
+            simpl. rewrite -> IH1.
+            intros l2.
+            rewrite -> (IH1 (h1 :: l2)).
+            rewrite <- app_assoc.
+            reflexivity.
+          }
+      }
+      apply H.
+    }
+Qed.
