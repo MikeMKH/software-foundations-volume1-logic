@@ -1157,3 +1157,9 @@ Proof.
       apply H.
     }
 Qed.
+
+(* from the text https://softwarefoundations.cis.upenn.edu/lf-current/Logic.html
+Informally, an extensional property is one that pertains to an object's observable behavior.
+Thus, functional extensionality simply means that a function's identity is completely determined
+by what we can observe from it -- i.e., the results we obtain after applying it.
+*)
