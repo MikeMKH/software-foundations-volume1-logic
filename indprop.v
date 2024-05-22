@@ -55,3 +55,21 @@ Proof.
 Qed.
 
 Conjecture collatz : forall n, Collatz_holds_for n.
+
+Inductive le : nat -> nat -> Prop :=
+  | le_n (n : nat) : le n n
+  | le_S (n m : nat) : le n m -> le n (S m).
+Notation "n <= m" := (le n m) (at level 70).
+Example le_3_5 : 3 <= 5.
+Proof.
+  apply le_S. (* 3 ≤ 4 *)
+  apply le_S. (* 3 ≤ 3 *)
+  apply le_n.
+Qed.
+
+Reserved Notation "n <= m" (at level 70).
+Inductive le' : nat -> nat -> Prop :=
+  | le_n' (n : nat) : n <= n
+  | le_S' (n m : nat) : n <= m -> n <= (S m)
+  where "n <= m" := (le' n m).
+  
