@@ -73,3 +73,44 @@ Inductive le' : nat -> nat -> Prop :=
   | le_S' (n m : nat) : n <= m -> n <= (S m)
   where "n <= m" := (le' n m).
   
+Inductive clos_trans {X: Type} (R: X->X->Prop) : X->X->Prop :=
+  | t_step (x y : X) :
+      R x y -> clos_trans R x y
+  | t_trans (x y z : X) :
+      clos_trans R x y -> clos_trans R y z -> clos_trans R x z.
+
+Inductive Person : Type := Sage | Cleo | Ridley | Moss.
+Inductive parent_of : Person -> Person -> Prop :=
+  po_SC : parent_of Sage Cleo
+| po_SR : parent_of Sage Ridley
+| po_CM : parent_of Cleo Moss.
+
+Definition ancestor_of : Person -> Person -> Prop :=
+  clos_trans parent_of.
+
+Example ancestor_of1 : ancestor_of Sage Moss.
+Proof.
+  unfold ancestor_of. (* clos_trans parent_of Sage Moss *)
+  apply t_trans with Cleo.
+  - (* clos_trans parent_of Sage Moss *)
+    {
+      apply t_step. (* parent_of Sage Cleo *)
+      apply po_SC.
+    }
+  - (* clos_trans parent_of Cleo Moss *)
+    {
+      apply t_step. (* parent_of Cleo Moss *)
+      apply po_CM.
+    }
+Qed.
+
+Inductive clos_refl_trans {X: Type} (R: X->X->Prop) : X->X->Prop :=
+    | rt_step :
+        forall x y,
+          R x y -> clos_refl_trans R x y
+    | rt_refl :
+        forall x,
+          clos_refl_trans R x x
+    | rt_trans :
+        forall x y z,
+          clos_refl_trans R x y -> clos_refl_trans R y z -> clos_refl_trans R x z.
