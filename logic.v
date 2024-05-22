@@ -1163,3 +1163,54 @@ Informally, an extensional property is one that pertains to an object's observab
 Thus, functional extensionality simply means that a function's identity is completely determined
 by what we can observe from it -- i.e., the results we obtain after applying it.
 *)
+
+Definition excluded_middle :=
+  forall P : Prop, P \/ ~ P.
+
+Theorem restricted_excluded_middle :
+  forall P b, (P <-> b = true) -> P \/ ~ P.
+Proof.
+(* this is the given proof in the text but it does not work
+  intros P [] H.
+  - left. rewrite H. reflexivity.
+  - right. rewrite H. intros contra. discriminate contra.
+Qed.
+*)
+Admitted.
+
+
+Theorem restricted_excluded_middle_eq :
+  forall (n m : nat), n = m \/ n <> m.
+Proof.
+(* this is the given proof in the text but it does not work
+  intros n m.
+  apply (restricted_excluded_middle (n = m) (n =? m)).
+  symmetry.
+  apply eqb_eq.
+Qed.
+*)
+Admitted.
+
+Theorem excluded_middle_irrefutable:
+  forall (P : Prop), ~ ~ (P \/ ~ P).
+Proof.
+  unfold not. intros P H.
+  apply H. right.
+  intros G.
+  apply H.
+  left. assumption.
+Qed.
+
+Theorem not_exists_dist :
+  excluded_middle -> forall (X:Type) (P : X -> Prop), ~ (exists x, ~ P x) -> (forall x, P x).
+Proof.
+  unfold excluded_middle. unfold not.
+  intros EM X P H x.
+  destruct (EM (P x)) as [HP | NP].
+  - (* P x *) assumption.
+  - (* P x -> False *)
+    {
+      exfalso. apply H.
+      exists x. assumption.
+    }
+Qed.
