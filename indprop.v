@@ -114,3 +114,62 @@ Inductive clos_refl_trans {X: Type} (R: X->X->Prop) : X->X->Prop :=
     | rt_trans :
         forall x y z,
           clos_refl_trans R x y -> clos_refl_trans R y z -> clos_refl_trans R x z.
+
+Notation "x :: y" := (cons x y)
+                     (at level 60, right associativity).
+Notation "[ ]" := nil.
+Notation "[ x ; .. ; y ]" := (cons x .. (cons y []) ..).
+Notation "x ++ y" := (app x y)
+                     (at level 60, right associativity).
+
+Inductive Perm3 {X : Type} : list X -> list X -> Prop :=
+  | perm3_swap12 (a b c : X) :
+      Perm3 [a;b;c] [b;a;c]
+  | perm3_swap23 (a b c : X) :
+      Perm3 [a;b;c] [a;c;b]
+  | perm3_trans (l1 l2 l3 : list X) :
+      Perm3 l1 l2 -> Perm3 l2 l3 -> Perm3 l1 l3.
+
+Example Perm3_example1 : Perm3 [1;2;3] [2;3;1].
+Proof.
+  apply perm3_trans with [2;1;3].
+  - apply perm3_swap12.
+  - apply perm3_swap23.
+Qed.
+
+Inductive ev : nat -> Prop :=
+  | ev_0 : ev 0
+  | ev_SS (n : nat) (H : ev n) : ev (S (S n)).
+
+Theorem ev_4 : ev 4.
+Proof.
+  apply ev_SS. apply ev_SS. apply ev_0.
+Qed.
+
+Theorem ev_4' : ev 4.
+Proof.
+  apply (ev_SS 2 (ev_SS 0 ev_0)).
+Qed.
+
+Theorem ev_plus4 :
+  forall n, ev n -> ev (4 + n).
+Proof.
+  intros n. simpl. intros H.
+  apply ev_SS. apply ev_SS.
+  assumption.
+Qed.
+
+Fixpoint double (n:nat) :=
+  match n with
+  | O => O
+  | S n' => S (S (double n'))
+  end.
+
+Theorem ev_double :
+  forall n, ev (double n).
+Proof.
+  intros n. unfold double.
+  induction n as [|n' IHn'].
+  - (* n = 0 *) apply ev_0.
+  - (* n = n' *) apply ev_SS. assumption.
+Qed.
