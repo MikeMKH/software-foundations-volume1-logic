@@ -173,3 +173,72 @@ Proof.
   - (* n = 0 *) apply ev_0.
   - (* n = n' *) apply ev_SS. assumption.
 Qed.
+
+Theorem ev_inversion :
+  forall (n : nat),
+  ev n -> (n = 0) \/ (exists n', n = S (S n') /\ ev n').
+Proof.
+  intros n E. destruct E as [| n' E'] eqn:EE.
+  - (* E = ev_0 : ev 0 *)
+    left. reflexivity.
+  - (* E = ev_SS n' E' : ev (S (S n')) *)
+    right. exists n'. split. reflexivity. apply E'.
+Qed.
+
+Theorem evSS_ev :
+  forall n, ev (S (S n)) -> ev n.
+Proof.
+  intros n H. apply ev_inversion in H. destruct H as [H0|H1].
+  - discriminate H0.
+  - destruct H1 as [n' [Hnm Hev]]. injection Hnm as Heq.
+    rewrite Heq. apply Hev.
+Qed.
+
+Theorem evSS_ev' :
+  forall n, ev (S (S n)) -> ev n.
+Proof.
+  intros n E. inversion E as [|n' E' Heq].
+  (* We are in the E = ev_SS n' E' case now. *)
+  apply E'.
+Qed.
+
+Theorem one_not_even : ~ ev 1.
+Proof.
+  intros H. apply ev_inversion in H. destruct H as [| [m [Hm _]]].
+  - discriminate H.
+  - discriminate Hm.
+Qed.
+
+Theorem one_not_even' : ~ ev 1.
+Proof.
+  intros H. inversion H.
+Qed.
+
+Theorem SSSSev__even :
+  forall n, ev (S (S (S (S n)))) -> ev n.
+Proof.
+  intros n H.
+  inversion H as [|n' H' Heq'].
+  inversion H' as [|n'' H'' Heq''].
+  apply H''.
+Qed.
+
+Theorem ev5_nonsense :
+  ev 5 -> 2 + 2 = 9.
+Proof.
+  intros H.
+  inversion H. inversion H1. inversion H3.
+Qed.
+
+Theorem inversion_ex1 :
+  forall (n m o : nat), [n; m] = [o; o] -> [n] = [m].
+Proof.
+  intros n m o H.
+  inversion H. reflexivity.
+Qed.
+
+Theorem inversion_ex2 :
+  forall (n : nat), S n = O -> 2 + 2 = 5.
+Proof.
+  intros n contra. inversion contra.
+Qed.
