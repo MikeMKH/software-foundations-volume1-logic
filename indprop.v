@@ -242,3 +242,57 @@ Theorem inversion_ex2 :
 Proof.
   intros n contra. inversion contra.
 Qed.
+
+Definition Even x := exists n : nat, x = double n.
+
+Lemma ev_Even :
+  forall n, ev n -> Even n.
+Proof.
+  intros n E.
+  induction E as [|n' E' IH].
+  - (* E = ev_0 *)
+    unfold Even. exists 0. reflexivity.
+  - (* E = ev_SS n' E'
+       with IH : Even n' *)
+    unfold Even in IH.
+    destruct IH as [k Hk].
+    rewrite Hk.
+    unfold Even. exists (S k). simpl. reflexivity.
+Qed.
+
+Theorem exists_example_2 :
+  forall n,
+  (exists m, n = 4 + m) ->
+  (exists o, n = 2 + o).
+Proof.
+  intros n [m Hm]. (* note the implicit destruct here *)
+  exists (2 + m).
+  apply Hm.
+Qed.
+
+Theorem dist_not_exists :
+  forall (X:Type) (P : X -> Prop),
+  (forall x, P x) -> ~ (exists x, ~ P x).
+Proof.
+  unfold not. intros X P H [x NP].
+  apply NP. apply H.
+Qed.
+
+Theorem dist_exists_or :
+  forall (X:Type) (P Q : X -> Prop),
+  (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
+Proof.
+  intros X P Q. split.
+  - (* -> *)
+    {
+      intros [x [PX | QX]].
+      + (* PX *) left. exists x. assumption.
+      + (* QX *) right. exists x. assumption.
+    }
+  - (* <- *)
+    {
+      intros [[x PX] | [x QX]].
+      + (* x PX *) exists x. left. assumption.
+      + (* x QX *) exists x. right. assumption.
+    }
+Qed.
