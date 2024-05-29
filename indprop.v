@@ -296,3 +296,77 @@ Proof.
       + (* x QX *) exists x. right. assumption.
     }
 Qed.
+
+Fixpoint In {A : Type} (x : A) (l : list A) : Prop :=
+  match l with
+  | [] => False
+  | x' :: l' => x' = x \/ In x l'
+  end.
+
+Example In_example_1 : In 4 [1; 2; 3; 4; 5].
+Proof.
+  simpl. right. right. right. left. reflexivity.
+Qed.
+
+Example In_example_2 :
+  forall n, In n [2; 4] -> exists n', n = 2 * n'.
+Proof.
+  simpl.
+  intros n [H | [H | []]].
+  (* n = n' + (n' + 0) *)
+  - (* n = 2 *)
+    exists 1. rewrite <- H. reflexivity.
+  - (* n = 4 *)
+    exists 2. rewrite <- H. reflexivity.
+Qed.
+
+Fixpoint map {X Y : Type} (f : X->Y) (l : list X) : list Y :=
+  match l with
+  | [] => []
+  | h :: t => (f h) :: (map f t)
+  end.
+
+Theorem In_map :
+  forall (A B : Type) (f : A -> B) (l : list A) (x : A),
+  In x l -> In (f x) (map f l).
+Proof.
+  intros A B f l x.
+  induction l as [|x' l' IHl'].
+  - (* l = [], contradiction *)
+    simpl. intros [].
+  - (* l = x' :: l' *)
+    simpl. intros [H | H].
+    + (* x' = x *)
+      rewrite H. left. reflexivity.
+    + (* In x l' *)
+      right. apply IHl'. assumption.
+Qed.
+
+Theorem In_map_iff :
+  forall (A B : Type) (f : A -> B) (l : list A) (y : B),
+  In y (map f l) <-> exists x, f x = y /\ In x l.
+Proof.
+  intros A B f l y. split.
+  { induction l as [|x l' IHl'].
+  (* -> *)
+  - (* [] *)
+    simpl. intros [].
+  - (* x :: l' *)
+    simpl. intros [H | H].
+    + (* f x = y *)
+      exists x. split.
+      * assumption.
+      * left. reflexivity.
+    + (* In y (map f l') *)
+      {
+        apply IHl' in H. destruct H as [w [Fw Iw]].
+        exists w. split.
+        * assumption.
+        * right. assumption.
+      }
+  }
+  (* <- *)
+  intros [w [Fw Iw]].
+  rewrite <- Fw. apply In_map.
+  assumption.
+Qed.
