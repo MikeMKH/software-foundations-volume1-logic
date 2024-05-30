@@ -297,76 +297,45 @@ Proof.
     }
 Qed.
 
-Fixpoint In {A : Type} (x : A) (l : list A) : Prop :=
-  match l with
-  | [] => False
-  | x' :: l' => x' = x \/ In x l'
-  end.
+Module Playground.
 
-Example In_example_1 : In 4 [1; 2; 3; 4; 5].
+Inductive le : nat -> nat -> Prop :=
+  | le_n (n : nat) : le n n
+  | le_S (n m : nat) (H : le n m) : le n (S m).
+Notation "n <= m" := (le n m).
+
+Theorem test_le1 : 3 <= 3.
+Proof. apply le_n. Qed.
+
+Theorem test_le2 : 3 <= 6.
+Proof. apply le_S. apply le_S. apply le_S. apply le_n. Qed.
+
+Theorem test_le3 :
+  (2 <= 1) -> 2 + 2 = 5.
 Proof.
-  simpl. right. right. right. left. reflexivity.
+  intros H. inversion H.
+  (* H2: 2 ≤ 0 *) inversion H2.
 Qed.
 
-Example In_example_2 :
-  forall n, In n [2; 4] -> exists n', n = 2 * n'.
+Definition lt (n m : nat) := le (S n) m.
+Notation "n < m" := (lt n m).
+
+End Playground.
+
+(* no idea if this is what they are looking for *)
+Inductive total_relation : nat -> nat -> Prop :=
+  | tr : forall n m, total_relation n m.
+
+Theorem total_relation_is_total :
+  forall n m, total_relation n m.
 Proof.
-  simpl.
-  intros n [H | [H | []]].
-  (* n = n' + (n' + 0) *)
-  - (* n = 2 *)
-    exists 1. rewrite <- H. reflexivity.
-  - (* n = 4 *)
-    exists 2. rewrite <- H. reflexivity.
+  apply tr.
 Qed.
 
-Fixpoint map {X Y : Type} (f : X->Y) (l : list X) : list Y :=
-  match l with
-  | [] => []
-  | h :: t => (f h) :: (map f t)
-  end.
+Inductive empty_relation : nat -> nat -> Prop := .
 
-Theorem In_map :
-  forall (A B : Type) (f : A -> B) (l : list A) (x : A),
-  In x l -> In (f x) (map f l).
+Theorem empty_relation_is_empty :
+  forall n m, ~ empty_relation n m.
 Proof.
-  intros A B f l x.
-  induction l as [|x' l' IHl'].
-  - (* l = [], contradiction *)
-    simpl. intros [].
-  - (* l = x' :: l' *)
-    simpl. intros [H | H].
-    + (* x' = x *)
-      rewrite H. left. reflexivity.
-    + (* In x l' *)
-      right. apply IHl'. assumption.
-Qed.
-
-Theorem In_map_iff :
-  forall (A B : Type) (f : A -> B) (l : list A) (y : B),
-  In y (map f l) <-> exists x, f x = y /\ In x l.
-Proof.
-  intros A B f l y. split.
-  { induction l as [|x l' IHl'].
-  (* -> *)
-  - (* [] *)
-    simpl. intros [].
-  - (* x :: l' *)
-    simpl. intros [H | H].
-    + (* f x = y *)
-      exists x. split.
-      * assumption.
-      * left. reflexivity.
-    + (* In y (map f l') *)
-      {
-        apply IHl' in H. destruct H as [w [Fw Iw]].
-        exists w. split.
-        * assumption.
-        * right. assumption.
-      }
-  }
-  (* <- *)
-  intros [w [Fw Iw]].
-  rewrite <- Fw. apply In_map.
-  assumption.
+  unfold not. intros n m H. inversion H.
 Qed.
